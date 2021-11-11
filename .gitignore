@@ -348,3 +348,12 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Make sure to not include the .vscode directory.
+.vscode/
+
+# Also make sure not to include the builds directory.
+Builds/
+
+# We should not include the makefiles as well.
+Makefile
