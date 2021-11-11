@@ -4,28 +4,11 @@ Password manager for the 5NTCM006C.1 Applied Cryptography module.
 
 Team members:
 
-<table>
-  <tr>
-    <th> Name </th>
-    <th> Student ID </th>
-    <th> UoW ID </th>
-  </tr>
-  <tr>
-    <td> Dhiraj Wishal (Team Leader) </td>
-    <td> 20200903 </td>
-    <td> w1838836 </td>
-  </tr>
-  <tr>
-    <td> Thulana Thidaswin </td>
-    <td> 20200904 </td>
-    <td> w1838837 </td>
-  </tr>
-  <tr>
-    <td> Faizan Muthaliff </td>
-    <td> - </td>
-    <td> - </td>
-  </tr>
-</table>
+| Name                        | Student ID | UoW ID   |
+| --------------------------- | ---------- | -------- |
+| Dhiraj Wishal (Team Leader) | 20200903   | w1838836 |
+| Thulana Thidaswin           | 20200904   | w1838837 |
+| Faizan Muthaliff            | 20200xxx   | w1838xxx |
 
 ## How to build
 
