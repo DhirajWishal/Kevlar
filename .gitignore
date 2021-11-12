@@ -357,3 +357,4 @@ Builds/
 
 # We should not include the makefiles as well.
 Makefile
+!Driver/Makefile
