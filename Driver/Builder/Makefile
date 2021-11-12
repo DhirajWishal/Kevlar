@@ -1,6 +1,7 @@
 KDIR:=/lib/modules/$(shell uname -r)/build
-kevlar-y := ../Source/Kevlar.o
-obj-m := kevlar.o
+
+Kevlar-y := ../Source/Kevlar.o
+obj-m := Kevlar.o
 
 all:
 	sudo make -C $(KDIR) M=$(PWD) modules
