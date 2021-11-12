@@ -7,14 +7,34 @@ project "KevlarDriver"
 	cppdialect "C++17"
 	staticruntime "on"
 
+	flags { "MultiProcessorCompile" }
+
+	targetdir "%{wks.location}/Builds/Binaries/%{cfg.longname}"
+	objdir "%{wks.location}/Builds/Intermediate/%{cfg.longname}"
+
 	buildcommands {
-        "make",
+        "cd Builder && make",
     }
     
     rebuildcommands {
-        "make rebuild",
+        "cd Builder && make rebuild",
     }
     
     cleancommands {
-        "make clean",
+        "cd Builder && make clean",
     }
+	
+	files {
+		"**.txt",
+		"**.c",
+		"**.h",
+		"**.cpp",
+		"**.hpp",
+		"**.lua",
+		"**.txt",
+		"**.md",
+	}
+
+	includedirs {
+		"%{wks.location}/Driver/",
+	}

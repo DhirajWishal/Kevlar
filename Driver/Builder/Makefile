@@ -1,5 +1,5 @@
 KDIR:=/lib/modules/$(shell uname -r)/build
-kevlar-y := Source/Kevlar.o
+kevlar-y := ../Source/Kevlar.o
 obj-m := kevlar.o
 
 all:

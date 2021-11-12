@@ -357,4 +357,18 @@ Builds/
 
 # We should not include the makefiles as well.
 Makefile
-!Driver/Makefile
+!Driver/Builder/Makefile
+
+# Do not include the generated files from kbuild.
+Driver/Builder/**.cmd
+Driver/Builder/**.ko
+Driver/Builder/**.mod
+Driver/Builder/**.mod.c
+Driver/Builder/**.mod.o
+Driver/Builder/**.c
+Driver/Builder/**.o
+Driver/Builder/**.symvers
+Driver/Builder/**.order
+
+Driver/Source/**.o
+Driver/Source/**.o.cmd
