@@ -4,8 +4,10 @@
 
 int main()
 {
-    std::cout << "Hello from Kevlar!" << std::endl;
-    DriverInterface interface;
+	std::cout << "Hello from Kevlar!" << std::endl;
+	DriverInterface interface;
 
-    return 0;
+	std::cout << "Is driver ready? " << (interface.IsDriverReady() ? "Yes" : "No") << std::endl;
+
+	return 0;
 }

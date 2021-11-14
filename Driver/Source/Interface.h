@@ -1,15 +1,17 @@
 #pragma once
 
-#include "Defines.h"
-
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/ioctl.h>
 
-struct InterfaceData
-{
+#include "Defines.h"
 
-};
+/**
+ * @brief Get the current status of the driver.
+ * 
+ * @return Status The status of the application.
+ */
+enum Status get_current_status(void);
 
 /**
  * @brief Function to handle file openings.

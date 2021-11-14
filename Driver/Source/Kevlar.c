@@ -7,8 +7,8 @@
 #include "Interface.h"
 
 dev_t device = 0;
-static struct cdev characterDevice;
-static struct class *pDeviceClass;
+static struct cdev characterDevice = {};
+static struct class *pDeviceClass = NULL;
 
 // Setup the file operations.
 static struct file_operations fileOperations = {
@@ -30,7 +30,7 @@ static int initialize(void)
     pr_info("Initializing Kevlar...\n");
 
     // Allocating major number.
-    if ((alloc_chrdev_region(&device, 0, 1, "Kevlar")) < 0)
+    if (alloc_chrdev_region(&device, 0, 1, "Kevlar") < 0)
     {
         pr_err("Failed to allocate device major number!\n");
         return -1;
@@ -58,7 +58,7 @@ static int initialize(void)
     }
 
     // Creating the interface device.
-    if ((device_create(pDeviceClass, NULL, device, NULL, "KevlarInterface")) == NULL)
+    if (device_create(pDeviceClass, NULL, device, NULL, "KevlarInterface") == NULL)
     {
         pr_err("Failed to create the Device 1\n");
 
