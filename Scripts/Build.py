@@ -3,4 +3,4 @@
 import os
 
 # Build the makefiles for the projects.
-os.system(f"cd .. && call \"Tools/premake5\" gmake2")
+os.system("cd .. && call \"Tools/premake5\" gmake2")
