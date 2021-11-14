@@ -14,6 +14,13 @@
 enum Status get_current_status(void);
 
 /**
+ * @brief Set the current status of the driver.
+ * 
+ * @param status The status to set.
+ */
+void set_current_status(enum Status status);
+
+/**
  * @brief Function to handle file openings.
  * 
  * @param pNode The inode pointer.

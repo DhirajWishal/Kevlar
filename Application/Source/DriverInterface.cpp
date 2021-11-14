@@ -51,6 +51,7 @@ DriverInterface::~DriverInterface()
 
 bool DriverInterface::IsDriverReady() const
 {
+	// Get the driver status.
 	Status driverStatus = Status::Status_Unknown;
 	IOCTL_ASSERT(ioctl(mFileDescriptor, CommandType::CommandType_RequestStatus, &driverStatus), "Failed to get the driver status!");
 
@@ -59,8 +60,35 @@ bool DriverInterface::IsDriverReady() const
 
 bool DriverInterface::IsCommandSuccessful() const
 {
+	// Get the driver status.
 	Status driverStatus = Status::Status_Unknown;
 	IOCTL_ASSERT(ioctl(mFileDescriptor, CommandType::CommandType_RequestStatus, &driverStatus), "Failed to get the driver status!");
 
 	return driverStatus == Status::Status_Successful || driverStatus == Status::Status_Ready;
+}
+
+void DriverInterface::SubmitData(CipherText data) const
+{
+	DataStore store = {};
+	store.mDataSize = data.size() * sizeof(Byte);
+	store.pCipherText = data.data();
+
+	// Submit the data store.
+	IOCTL_ASSERT(ioctl(mFileDescriptor, CommandType::CommandType_SubmitDataStore, &store), "Failed to submit data to the driver!");
+}
+
+CipherText DriverInterface::RequestData() const
+{
+	// Get the size of the data.
+	DataStore store = {};
+	IOCTL_ASSERT(ioctl(mFileDescriptor, CommandType::CommandType_RequestDataSize, &store.mDataSize), "Failed to get the data size from the driver!");
+
+	// Create the ciphertext buffer and copy the data to it.
+	store.pCipherText = new unsigned char[store.mDataSize];
+	IOCTL_ASSERT(ioctl(mFileDescriptor, CommandType::CommandType_RequestDataStore, &store), "Failed to request data from the driver!");
+
+	// Create the container and return.
+	CipherText data(store.pCipherText, store.pCipherText + store.mDataSize);
+	delete[] store.pCipherText;
+	return data;
 }

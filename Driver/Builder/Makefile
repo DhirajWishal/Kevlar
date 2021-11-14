@@ -1,6 +1,8 @@
 KDIR:=/lib/modules/$(shell uname -r)/build
 
-Kevlar-y := ../Source/Kevlar.o ../Source/Interface.o
+Kevlar-y := ../Source/Kevlar.o 		\
+			../Source/Interface.o	\
+			../Source/DataManager.o
 obj-m := Kevlar.o
 
 all:

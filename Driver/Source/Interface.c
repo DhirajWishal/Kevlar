@@ -1,14 +1,19 @@
-#include "Interface.h"
+#include "DataManager.h"
 
 #include <linux/kdev_t.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
 
-enum Status currentStatus = Status_Ready;
+static enum Status currentStatus = Status_Ready;
 
 enum Status get_current_status(void)
 {
 	return currentStatus;
+}
+
+void set_current_status(enum Status status)
+{
+	currentStatus = status;
 }
 
 int open_file(struct inode *pNode, struct file *pFile)
@@ -42,6 +47,35 @@ long handle_ioctl_request(struct file *pFile, unsigned int command, unsigned lon
 
 	case CommandType_Login:
 		break;
+
+	case CommandType_SubmitDataStore:
+	{
+		struct DataStore store = {};
+		if (copy_from_user(&store, (struct DataStore *)argument, sizeof(struct DataStore)))
+			pr_err("Failed load the data store from user!\n");
+		else
+			load_from_data_store(store);
+	}
+	break;
+
+	case CommandType_RequestDataSize:
+	{
+		unsigned long size = get_data_size();
+		if (copy_to_user((unsigned long *)argument, &size, sizeof(unsigned long)))
+			pr_err("Failed to send the data size to the user!\n");
+		break;
+	}
+	break;
+
+	case CommandType_RequestDataStore:
+	{
+		struct DataStore store = {};
+		if (copy_from_user(&store, (struct DataStore *)argument, sizeof(struct DataStore)))
+			pr_err("Failed load the data store from user!\n");
+		else
+			store_to_data_store(store);
+	}
+	break;
 
 	default:
 		pr_info("Default\n");

@@ -1,5 +1,13 @@
 #pragma once
 
+#include "DataTypes.hpp"
+
+struct RawCipherText
+{
+	Byte *pCipherText = nullptr;
+	uint64 mSize = 0;
+};
+
 /**
  * @brief Driver interface object.
  * This class is used to create a connection between the kernel driver in order to access and store data safely.
@@ -37,4 +45,18 @@ public:
 	 * @return false If the command failed.
 	 */
 	bool IsCommandSuccessful() const;
+
+	/**
+	 * @brief Submit data to the driver.
+	 * 
+	 * @param data The data to submit.
+	 */
+	void SubmitData(CipherText data) const;
+
+	/**
+	 * @brief Request the stored cipher text from the driver.
+	 * 
+	 * @return CipherText The ciphertext.
+	 */
+	CipherText RequestData() const;
 };
