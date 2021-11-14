@@ -3,6 +3,9 @@
 #define WRITE_COMMAND(number, type) _IOW('a', number, type)
 #define READ_COMMAND(number, type) _IOR('a', number, type)
 
+#define MAX_TITLE_LENGTH 20
+#define MAX_DESCRIPTION_LENGTH 256
+
 /**
  * @brief Login information structure.
  * This structure contains information to setup a new connection.
@@ -14,14 +17,45 @@ struct LoginInformation
 };
 
 /**
+ * @brief Data entry structure.
+ * This structure holds information about a single entry.
+ * 
+ * We store all the keys in a single block of data. Because of this, its much more easier to index and use as we reduce the amount of cache misses and we can
+ * directly index everyting using a single block, which also makes it easier to store and retrieve them.
+ * 
+ * We also allow for custom encryption keys, where the user can specify a key for a single entry.
+ */
+struct DataEntry
+{
+	char mTitle[MAX_TITLE_LENGTH];			   // The title of the entry.
+	char mDescription[MAX_DESCRIPTION_LENGTH]; // The data description.
+	unsigned char mKeyLength;				   // The key length.
+	unsigned char mKeyOffset;				   // The key offset in the key data block.
+	bool bHasCustomKey;						   // State whether here we use a custom key.
+};
+
+/**
  * @brief Data strore structure.
- * This structure holds information about a single encrypted data pointer. This pointer is provided to the driver by the
- * client (usermode) application as the driver itself doesn't do any file I/O.
+ * This structure holds information about the encrypted key block, and the data entries.
  */
 struct DataStore
 {
-	unsigned char *pCipherText; // The data pointer.
-	unsigned long mDataSize;	// The size of the data.
+	struct DataEntry *pDataEntries; // The stored data entries.
+	unsigned char *pCipherText;		// The data pointer.
+
+	unsigned long mDataEntryCount; // The number of data entries stored.
+	unsigned long mDataSize;	   // The size of the data.
+};
+
+/**
+ * @brief New entry structure.
+ * This structure contains information about a new entry.
+ */
+struct NewEntry
+{
+	struct DataEntry mEntry;  // The entry information.
+	unsigned char *pKeyData;  // The key data.
+	unsigned long mKeyLength; // The length of the key.
 };
 
 /**
@@ -63,4 +97,15 @@ enum CommandType
 	// This command is required to get back the ciphertext and store in a file. Upon driver shutdown, it automatically deallocates the stored
 	// memory block used for ciphertext.
 	CommandType_RequestDataStore = READ_COMMAND(4, struct DataStore),
+
+	// Request the number of entries in the data store.
+	CommandType_RequestEntryCount = READ_COMMAND(5, unsigned long),
+
+	// Request the data entries.
+	// This will copy all the stored data entries to a user provided pointer.
+	CommandType_RequestEntries = READ_COMMAND(6, struct DataEntry *),
+
+	// Submit new entry command.
+	// This command is used to submit a new entry to the driver.
+	CommandType_SubmitNewEntry = WRITE_COMMAND(7, struct NewEntry),
 };

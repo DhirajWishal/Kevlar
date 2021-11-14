@@ -71,11 +71,39 @@ long handle_ioctl_request(struct file *pFile, unsigned int command, unsigned lon
 	{
 		struct DataStore store = {};
 		if (copy_from_user(&store, (struct DataStore *)argument, sizeof(struct DataStore)))
-			pr_err("Failed load the data store from user!\n");
+			pr_err("Failed send the data store to user!\n");
 		else
 			store_to_data_store(store);
 	}
 	break;
+
+	case CommandType_RequestEntryCount:
+	{
+		unsigned long size = get_entry_count();
+		if (copy_to_user((unsigned long *)argument, &size, sizeof(unsigned long)))
+			pr_err("Failed to send the entry count to the user!\n");
+		break;
+	}
+	break;
+
+	case CommandType_RequestEntries:
+	{
+		unsigned long size = get_entry_count();
+		if (copy_to_user((struct DataEntry *)argument, get_entries(), sizeof(struct DataEntry) * size))
+			pr_err("Failed to send the entries to the user!\n");
+		break;
+	}
+	break;
+
+	case CommandType_SubmitNewEntry:
+	{
+		struct NewEntry entry = {};
+		if(copy_from_user(&entry, (struct NewEntry*)argument, sizeof(struct NewEntry)))
+			pr_err("Failed to get the new entry from the user!\n");
+		else
+			add_new_entry(entry);
+	}
+		break;
 
 	default:
 		pr_info("Default\n");
