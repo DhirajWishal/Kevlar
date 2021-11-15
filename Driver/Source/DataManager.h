@@ -4,21 +4,21 @@
 
 /**
  * @brief Load ciphertext data from the client's data store.
- * 
+ *
  * @param store The data store to load the data from.
  */
 void load_from_data_store(const struct DataStore store);
 
 /**
  * @brief Get the data size of the ciphertext.
- * 
+ *
  * @return unsigned long The size in bytes.
  */
 unsigned long get_data_size(void);
 
 /**
  * @brief Store the ciphertext data in a client data store.
- * 
+ *
  * @param store The data store to store the data.
  */
 void store_to_data_store(struct DataStore store);
@@ -30,22 +30,36 @@ void store_to_data_store(struct DataStore store);
 void clear_data_manager(void);
 
 /**
- * @brief Get the entry count.
- * 
- * @return unsigned long The number of entries stored.
+ * @brief Add a new ciphertext entry.
+ *
+ * @param pEntry The entry pointer.
  */
-unsigned long get_entry_count(void);
+void add_new_entry(struct CipherEntry *pEntry);
 
 /**
- * @brief Get all the stored entry objects.
- * 
- * @return struct DataEntry* The entries.
+ * @brief Decrypt a block of data from the internal store.
+ *
+ * @param information The decryption information.
  */
-struct DataEntry* get_entries(void);
+void decrypt_data_block(struct DecryptInformation information);
 
 /**
- * @brief Add a new entry to the list.
- * 
- * @param entry The new entry to add.
+ * @brief Get the decrypted data size from the decrypted pool.
+ *
+ * @return unsigned long The size in bytes.
  */
-void add_new_entry(struct NewEntry entry);
+unsigned long get_decrypted_data_size(void);
+
+/**
+ * @brief Copy the decrypted data to a pointer.
+ *
+ * @param pStore The pointer to copy the data to.
+ */
+void copy_decrypted_data(unsigned char *pStore);
+
+/**
+ * @brief Get the decrypted data pointer.
+ *
+ * @return unsigned char* The data pointer.
+ */
+unsigned char *get_decrypted_data(void);

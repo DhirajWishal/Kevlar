@@ -62,6 +62,7 @@ static int initialize(void)
 	{
 		pr_err("Failed to create the Device 1\n");
 
+		unregister_chrdev_region(device, 1);
 		class_destroy(pDeviceClass);
 		return -1;
 	}

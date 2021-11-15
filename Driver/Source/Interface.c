@@ -77,33 +77,43 @@ long handle_ioctl_request(struct file *pFile, unsigned int command, unsigned lon
 	}
 	break;
 
-	case CommandType_RequestEntryCount:
-	{
-		unsigned long size = get_entry_count();
-		if (copy_to_user((unsigned long *)argument, &size, sizeof(unsigned long)))
-			pr_err("Failed to send the entry count to the user!\n");
-		break;
-	}
-	break;
-
-	case CommandType_RequestEntries:
-	{
-		unsigned long size = get_entry_count();
-		if (copy_to_user((struct DataEntry *)argument, get_entries(), sizeof(struct DataEntry) * size))
-			pr_err("Failed to send the entries to the user!\n");
-		break;
-	}
-	break;
-
 	case CommandType_SubmitNewEntry:
 	{
-		struct NewEntry entry = {};
-		if(copy_from_user(&entry, (struct NewEntry*)argument, sizeof(struct NewEntry)))
+		struct CipherEntry *pEntry = NULL;
+		if (copy_from_user(&pEntry, (struct CipherEntry **)argument, sizeof(struct CipherEntry *)))
 			pr_err("Failed to get the new entry from the user!\n");
 		else
-			add_new_entry(entry);
+			add_new_entry(pEntry);
 	}
-		break;
+	break;
+
+	case CommandType_Decrypt:
+	{
+		struct DecryptInformation information = {};
+		if (copy_from_user(&information, (struct DecryptInformation *)argument, sizeof(struct DecryptInformation)))
+			pr_err("Failed to get the new entry from the user!\n");
+		else
+			decrypt_data_block(information);
+	}
+	break;
+
+	case CommandType_RequestDecryptedDataSize:
+	{
+		unsigned long size = get_decrypted_data_size();
+		if (copy_to_user((unsigned long *)argument, &size, sizeof(unsigned long)))
+			pr_err("Failed to send the decrypted data size to the user!\n");
+	}
+	break;
+
+	case CommandType_RequestDecryptedData:
+	{
+		unsigned long size = get_decrypted_data_size();
+		unsigned char *pDataPointer = get_decrypted_data();
+
+		if (copy_to_user((unsigned char *)argument, &pDataPointer, sizeof(unsigned char) * size))
+			pr_err("Failed to copy the decrypted data to the user!\n");
+	}
+	break;
 
 	default:
 		pr_info("Default\n");

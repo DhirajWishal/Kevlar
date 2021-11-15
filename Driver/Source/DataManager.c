@@ -2,15 +2,14 @@
 
 #include <linux/vmalloc.h>
 
-/**
- * @brief The vault structure.
- * This structure holds information about the ciphertext.
- */
+static struct
+{
+	unsigned char *pDataChunk; // The data chunk.
+	unsigned long mDataSize;   // The size of the chunk.
+} decryptedData;
 
 static struct DataStore dataVault = {
-	.pDataEntries = NULL,
 	.pCipherText = NULL,
-	.mDataEntryCount = 0,
 	.mDataSize = 0,
 };
 
@@ -61,19 +60,7 @@ void load_from_data_store(const struct DataStore store)
 {
 	pr_info("Loading store data...");
 	dataVault.mDataSize = store.mDataSize;
-	dataVault.mDataEntryCount = store.mDataEntryCount;
-
 	dataVault.pCipherText = decrypt_data(store.pCipherText, store.mDataSize);
-	dataVault.pDataEntries = (struct DataEntry *)vmalloc(sizeof(struct DataEntry) * dataVault.mDataEntryCount);
-
-	// Check if the copy was successful.
-	if (copy_from_user(dataVault.pDataEntries, store.pDataEntries, sizeof(struct DataEntry) * dataVault.mDataEntryCount))
-	{
-		pr_err("Failed to copy from the user!\n");
-		set_current_status(Status_Unsuccessful);
-
-		return;
-	}
 
 	if (dataVault.pCipherText != NULL)
 		set_current_status(Status_Successful);
@@ -90,16 +77,7 @@ unsigned long get_data_size(void)
 void store_to_data_store(struct DataStore store)
 {
 	store.mDataSize = dataVault.mDataSize;
-	store.mDataEntryCount = dataVault.mDataEntryCount;
 	encrypt_and_store(dataVault.pCipherText, store.pCipherText, dataVault.mDataSize);
-
-	if (copy_to_user(store.pDataEntries, dataVault.pDataEntries, sizeof(struct DataEntry) * dataVault.mDataEntryCount))
-	{
-		pr_err("Failed to copy data to the user!\n");
-		set_current_status(Status_Unsuccessful);
-
-		return;
-	}
 
 	set_current_status(Status_Successful);
 }
@@ -107,25 +85,32 @@ void store_to_data_store(struct DataStore store)
 void clear_data_manager(void)
 {
 	vfree(dataVault.pCipherText);
-	vfree(dataVault.pDataEntries);
 
-	dataVault.mDataEntryCount = 0;
 	dataVault.mDataSize = 0;
-	dataVault.pDataEntries = NULL;
 	dataVault.pCipherText = NULL;
+
+	vfree(decryptedData.pDataChunk);
+
+	decryptedData.pDataChunk = NULL;
+	decryptedData.mDataSize = 0;
 }
 
-unsigned long get_entry_count(void)
-{
-	return dataVault.mDataEntryCount;
-}
-
-struct DataEntry *get_entries(void)
-{
-	return dataVault.pDataEntries;
-}
-
-void add_new_entry(struct NewEntry entry)
+void add_new_entry(struct CipherEntry *pEntry)
 {
 	// TODO
+}
+
+void decrypt_data_block(struct DecryptInformation information)
+{
+	// TODO
+}
+
+unsigned long get_decrypted_data_size(void)
+{
+	return decryptedData.mDataSize;
+}
+
+unsigned char *get_decrypted_data(void)
+{
+	return decryptedData.pDataChunk;
 }

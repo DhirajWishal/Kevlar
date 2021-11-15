@@ -3,8 +3,7 @@
 #define WRITE_COMMAND(number, type) _IOW('a', number, type)
 #define READ_COMMAND(number, type) _IOR('a', number, type)
 
-#define MAX_TITLE_LENGTH 20
-#define MAX_DESCRIPTION_LENGTH 256
+#define MAX_KEY_LENGTH (512 / 8)
 
 /**
  * @brief Login information structure.
@@ -17,21 +16,35 @@ struct LoginInformation
 };
 
 /**
- * @brief Data entry structure.
- * This structure holds information about a single entry.
- * 
- * We store all the keys in a single block of data. Because of this, its much more easier to index and use as we reduce the amount of cache misses and we can
- * directly index everyting using a single block, which also makes it easier to store and retrieve them.
- * 
- * We also allow for custom encryption keys, where the user can specify a key for a single entry.
+ * @brief Cipher chunk structure.
+ * Since we are just storing the ciphertext in the driver side, we identify a single key string using its offset and length,
+ * This structure provide the means of identifying a single chunk of ciphertext.
  */
-struct DataEntry
+struct CipherChunk
 {
-	char mTitle[MAX_TITLE_LENGTH];			   // The title of the entry.
-	char mDescription[MAX_DESCRIPTION_LENGTH]; // The data description.
-	unsigned char mKeyLength;				   // The key length.
-	unsigned char mKeyOffset;				   // The key offset in the key data block.
-	bool bHasCustomKey;						   // State whether here we use a custom key.
+	unsigned long mOffset; // The offset in the ciphertext stream.
+	unsigned long mLength; // The length of the ciphertext.
+};
+
+/**
+ * @brief Cipher entry structure.
+ * This structure is used to submit ciphertext to the driver.
+ */
+struct CipherEntry
+{
+	struct CipherChunk mResultChunk; // The resulting ciphertext chunk.
+	unsigned char *pCipherText;		 // The ciphertext to append.
+	unsigned long mDataLength;		 // The length of the ciphertext.
+};
+
+/**
+ * @brief Decrypt information structure.
+ * This structure contains information required to decrypt a single key stream.
+ */
+struct DecryptInformation
+{
+	struct CipherChunk mChunkInfo;				  // The chunk to decrypt.
+	unsigned char mDecryptionKey[MAX_KEY_LENGTH]; // The decipher key.
 };
 
 /**
@@ -40,22 +53,8 @@ struct DataEntry
  */
 struct DataStore
 {
-	struct DataEntry *pDataEntries; // The stored data entries.
-	unsigned char *pCipherText;		// The data pointer.
-
-	unsigned long mDataEntryCount; // The number of data entries stored.
-	unsigned long mDataSize;	   // The size of the data.
-};
-
-/**
- * @brief New entry structure.
- * This structure contains information about a new entry.
- */
-struct NewEntry
-{
-	struct DataEntry mEntry;  // The entry information.
-	unsigned char *pKeyData;  // The key data.
-	unsigned long mKeyLength; // The length of the key.
+	unsigned char *pCipherText; // The data pointer.
+	unsigned long mDataSize;	// The size of the data.
 };
 
 /**
@@ -98,14 +97,18 @@ enum CommandType
 	// memory block used for ciphertext.
 	CommandType_RequestDataStore = READ_COMMAND(4, struct DataStore),
 
-	// Request the number of entries in the data store.
-	CommandType_RequestEntryCount = READ_COMMAND(5, unsigned long),
+	// Submit a new chunk of data to the driver.
+	// After including the new ciphertext, the resulting chunk's size will be set to the incoming argument.
+	CommandType_SubmitNewEntry = WRITE_COMMAND(5, struct CipherEntry *),
 
-	// Request the data entries.
-	// This will copy all the stored data entries to a user provided pointer.
-	CommandType_RequestEntries = READ_COMMAND(6, struct DataEntry *),
+	// Decrypt command.
+	// Command the driver to decrypt a chunk of data.
+	CommandType_Decrypt = WRITE_COMMAND(6, struct DecryptInformation),
 
-	// Submit new entry command.
-	// This command is used to submit a new entry to the driver.
-	CommandType_SubmitNewEntry = WRITE_COMMAND(7, struct NewEntry),
+	// Request for the decrypted data size.
+	CommandType_RequestDecryptedDataSize = READ_COMMAND(7, unsigned long),
+
+	// Request the decrypted data.
+	// If the data was successfully decrypted, the data will be copied to the provided pointer.
+	CommandType_RequestDecryptedData = READ_COMMAND(8, unsigned char *),
 };
