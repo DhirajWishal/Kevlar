@@ -9,22 +9,22 @@
 #include <crypto/drbg.h>
 
 static unsigned char IVData[16] = {
-	0x00,
-	0x11,
-	0x22,
-	0x33,
-	0x44,
-	0x55,
-	0x66,
-	0x77,
-	0x88,
-	0x99,
-	0xAA,
-	0xBB,
-	0xCC,
-	0xDD,
-	0xEE,
-	0xFF,
+	179,
+	223,
+	197,
+	199,
+	229,
+	191,
+	227,
+	181,
+	211,
+	167,
+	193,
+	251,
+	239,
+	173,
+	241,
+	233,
 };
 
 struct CryptographicOutput encrypt_data_symmetric(struct SymmetricInput input)
