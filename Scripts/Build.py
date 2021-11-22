@@ -2,5 +2,8 @@
 
 import os
 
+# Build premake5 used to build the repository.
+os.system("cd \"ThirdParty/premake5\" && make -f Bootstrap.mak linux")
+
 # Build the makefiles for the projects.
-os.system("cd .. && call \"Tools/premake5\" gmake2")
+os.system("call \"ThirdParty/premake5/bin/release/premake5\" gmake2")
