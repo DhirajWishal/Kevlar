@@ -14,8 +14,8 @@ Team members:
 
 Before we prepare for the build, make sure to have the following dependencies,
 
-1. [Python 3.x](https://www.python.org/downloads/)
-2. [GNU GCC](https://gcc.gnu.org/) compiler or [Clang](https://clang.llvm.org/) compiler.
+1. [JDK](https://www.oracle.com/java/technologies/downloads/). We prefer sticking to the latest version.
+2. [Node.js](https://nodejs.org/en/). Again, we prefer the latest version.
 
 First things first, clone this repository to a local directory.
 
@@ -26,13 +26,8 @@ cd {SOURCE}
 
 *Where source means the directory where the repository is cloned to.*
 
-From there, you just need to run the `Build.py` under the `/Scripts` directory.
-
-```bash
-python Scripts/Build.py
-```
-
-If the build was successful, you will get a set of `Makefile`s, from which you can build and run the application.
+From there, you need to run the `Main.js` file from the `server/` directory, and the `Main.java` file under the `client/` directory. If everything was successful, you proceed with logging in or by creating a new
+account.
 
 ## License
 
