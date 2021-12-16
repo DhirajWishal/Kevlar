@@ -18,7 +18,7 @@ public class Application {
 	public void run() {
 		boolean bShouldRun = true;
 		while (bShouldRun) {
-			printMenu();
+			printLoginMenu();
 			switch (getCommand()) {
 				case 1:
 					login();
@@ -28,15 +28,7 @@ public class Application {
 					createAccount();
 					break;
 
-				case 3:
-					decryptPassword();
-					break;
-
-				case 4:
-					enterNewPassword();
-					break;
-
-				case 99:
+				case 0:
 					bShouldRun = false;
 					break;
 
@@ -51,14 +43,25 @@ public class Application {
 	/**
 	 * Print the menu.
 	 */
-	private void printMenu() {
+	private void printLoginMenu() {
 		printSeparator();
 		System.out.println("Available commands: ");
 		System.out.println("1. Login to system.");
 		System.out.println("2. Create new account.");
-		System.out.println("3. Decrypt password.");
-		System.out.println("4. Enter a new password password.");
-		System.out.println("99. Exit program.");
+		System.out.println("0. Exit program.");
+		printSeparator();
+	}
+
+	/**
+	 * print the functional menu
+	 */
+	private void printFunctionalMenu(){
+		printSeparator();
+		System.out.println("Available commands: ");
+		System.out.println("1. View Password.");
+		System.out.println("2. Change Main Password.");
+		System.out.println("3. Change Validation Key.");
+		System.out.println("0. Logout & exit application.");
 		printSeparator();
 	}
 
@@ -90,17 +93,90 @@ public class Application {
 	 * Login to the kevlar system.
 	 */
 	private void login() {
+		String masterPassword,userName,validationKey;
+
 		printSeparator();
-		// Logic goes here.
+
+		//username & password send to thools have a while loop to get correct values
+		System.out.println("Enter your Username: ");
+		userName = scanner.nextLine();
+		while (userName.length() < 5 || userName.length() > 30) {
+			System.out.println("Please enter a Username between 5 and 30 characters: ");
+			userName = scanner.nextLine();
+		}
+
+		System.out.println("Enter Master Password: ");
+		masterPassword = scanner.nextLine();
+		while (masterPassword.length() < 8 || masterPassword.length() > 30) {
+			System.out.println("Please enter a Master Password between 8 and 30 characters: ");
+			masterPassword = scanner.nextLine();
+		}
+		masterPassword = Hasher.getSHA256(masterPassword);
+
+		/*
+		System.out.println("Enter Validation key: ");
+		validationKey = scanner.nextLine();
+		while (validationKey.length() < 8 || validationKey.length() > 30) {
+			System.out.println("Please enter a Validation key between 8 and 30 characters: ");
+			validationKey = scanner.nextLine();
+		}
+		validationKey = Hasher.getSHA256(validationKey);
+		*/
 	}
 
 	/**
 	 * Create a new user account.
 	 */
 	private void createAccount() {
+		boolean bConfirm = false;
+		String userName,masterPassword="",confirmPassword,validationKey="";
+
 		printSeparator();
-		// Logic goes here.
+		System.out.println("Enter your Username: ");
+		userName = scanner.nextLine();
+		while (userName.length() < 5 || userName.length() > 30) {
+			System.out.println("Please enter a Username between 5 and 30 characters: ");
+			userName = scanner.nextLine();
+		}
+		while (bConfirm == false) {
+			System.out.println("Enter Master Password: ");
+			masterPassword = scanner.nextLine();
+			while (masterPassword.length() < 8 || masterPassword.length() > 30) {
+				System.out.println("Please enter a Master Password between 8 and 30 characters: ");
+				masterPassword = scanner.nextLine();
+			}
+			System.out.println("Confirm Password: ");
+			confirmPassword = scanner.nextLine();
+			if (confirmPassword.equals(masterPassword)) {
+				System.out.println("Username & Password Created Succesfully!");
+				masterPassword=Hasher.getSHA256(masterPassword);
+				bConfirm=true;
+			}else{
+				System.out.println("Password Mismatch please Re-enter!!");
+			}
+		}
+		bConfirm=false;
+		while (bConfirm == false) {
+			System.out.println("Enter a Validation key(Required to further the integrity of the Database): ");
+			validationKey = scanner.nextLine();
+			while (validationKey.length() < 8 || validationKey.length() > 30) {
+				System.out.println("Please enter a Validation key between 8 and 30 characters: ");
+				validationKey = scanner.nextLine();
+			}
+			System.out.println("Confirm validation key: ");
+			confirmPassword = scanner.nextLine();
+			if (confirmPassword.equals(validationKey)) {
+				System.out.println("Validation key Created Succesfully!");
+				validationKey=Hasher.getSHA256(validationKey);
+				bConfirm=true;
+			}else{
+				System.out.println("Validation key Mismatch please Re-enter!!");
+			}
+		}
+		
 	}
+
+
 
 	/**
 	 * Index and decrypt a password.
@@ -124,4 +200,5 @@ public class Application {
 	public void cleanup() {
 		// Logic goes here.
 	}
+
 }
