@@ -18,22 +18,16 @@ public class AES {
     public static String encrypt(String password,String masterPassword,String username){
         try {
 
-            // Create default byte array
             byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             IvParameterSpec ivspec = new IvParameterSpec(iv);
-
-            // Create SecretKeyFactory object
             SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
 
-            // Create KeySpec object and assign with
-            // constructor
             KeySpec spec = new PBEKeySpec(masterPassword.toCharArray(), username.getBytes(), 65536, 256);
             SecretKey tmp = factory.generateSecret(spec);
             SecretKeySpec secretKey = new SecretKeySpec(tmp.getEncoded(), "AES");
 
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivspec);
-            // Return encrypted string
             return Base64.getEncoder().encodeToString(cipher.doFinal(password.getBytes(StandardCharsets.UTF_8)));
         }
         catch (Exception e) {
@@ -41,30 +35,23 @@ public class AES {
         }
         return null;
     }
-    // This method use to decrypt to string
+
     public static String decrypt(String password,String masterPassword,String username)
     {
         try {
 
-            // Default byte array
-            byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0 };
-            // Create IvParameterSpec object and assign with
-            // constructor
+            byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             IvParameterSpec ivspec = new IvParameterSpec(iv);
 
-            // Create SecretKeyFactory Object
             SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
 
-            // Create KeySpec object and assign with
-            // constructor
             KeySpec spec = new PBEKeySpec(masterPassword.toCharArray(), username.getBytes(), 65536, 256);
             SecretKey tmp = factory.generateSecret(spec);
             SecretKeySpec secretKey = new SecretKeySpec(tmp.getEncoded(), "AES");
 
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
             cipher.init(Cipher.DECRYPT_MODE, secretKey, ivspec);
-            // Return decrypted string
+
             return new String(cipher.doFinal(Base64.getDecoder().decode(password)));
         }
         catch (Exception e) {
