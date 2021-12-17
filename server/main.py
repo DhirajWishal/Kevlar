@@ -2,32 +2,34 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import Account
+import CryptoService
 import Database
+import Packager
+import Responses
 
 hostName = "localhost"
-serverPort = 8080
+serverPort = 2255
 
 
 class MyServer(BaseHTTPRequestHandler):
     database = Database.Database()
+    packager = Packager.Packager()
+    packet_decryptor = CryptoService.PacketDecryption()
+
+    def get_public_key(self):
+        return self.packager.generate_handshake(CryptoService.to_base64(self.packet_decryptor.public_key))
 
     def do_GET(self):
-        self.send_response(200)
+        self.send_response(Responses.Responses.OK)
         self.send_header("Content-type", "text/xml")
         self.end_headers()
-        self.wfile.write(bytes("<html><head><title>https://pythonbasics.org</title></head>", "utf-8"))
-        self.wfile.write(bytes("<p>Request: %s</p>" % self.path, "utf-8"))
-        self.wfile.write(bytes("<body>", "utf-8"))
-        self.wfile.write(bytes("<p>This is an example web server.</p>", "utf-8"))
-        self.wfile.write(bytes("</body></html>", "utf-8"))
+        self.wfile.write(bytes(self.get_public_key(), "utf-8"))
 
-        self.database.show_content()
-
-        if self.database.user_exist("Dhiraj"):
-            self.database.update(Account.Account("Dhiraj", "00000000000000000000000000000000",
-                                                 "00000000000000000000000000000000", 0))
-
-        self.database.commit()
+    def do_POST(self):
+        self.send_response(Responses.Responses.OK)
+        self.send_header("Content-type", "text/xml")
+        self.end_headers()
+        self.wfile.write(bytes(self.get_public_key(), "utf-8"))
 
 
 if __name__ == "__main__":
