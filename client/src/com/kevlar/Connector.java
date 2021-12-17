@@ -12,6 +12,8 @@ import java.util.Map;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Connection;
+import java.sql.Statement;
 
 public class Connector {
     private KeyPair theKeys = null;
@@ -28,7 +30,8 @@ public class Connector {
         //Generating the pair of keys
         theKeys = keyGenerator.generateKeyPair();
     }
-    public void setupConnection(){
+
+    public void setupConnection() {
         publicKeyToXML();
     }
 
@@ -59,11 +62,11 @@ public class Connector {
     public void requestFromServer() throws IOException {
         Map<String, String> xmlHashMap = new HashMap<>();
         xmlHashMap.put("Content Type", "text/xml");
-        connection.setDoOutput(true);
-        DataOutputStream outPutStream = new DataOutputStream(connection.getOutputStream());
-        outPutStream.writeBytes(hashMapStringBuilder.getxmlString(xmlHashMap));
-        outPutStream.flush();
-        outPutStream.close();
+        // connection.setDoOutput(true);
+        //DataOutputStream outPutStream = new DataOutputStream(connection.getOutputStream());
+        //outPutStream.writeBytes(hashMapStringBuilder.getxmlString(xmlHashMap));
+        //outPutStream.flush();
+        //outPutStream.close();
 
     }
 
@@ -85,30 +88,53 @@ public class Connector {
                     : finalString;
         }
     }
-    public void createSQL(){
-            Connection conn = null;
+
+    public void createDatabase() {
+        Connection sqlConnector = null;
+        try {
+            // db parameters
+            String url = "jdbc:sqlite:userData.db";
+            // create a connection to the database
+            sqlConnector = DriverManager.getConnection(url);
+
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
             try {
-                // db parameters
-                String url = "jdbc:sqlite:C:/sqlite/db/chinook.db";
-                // create a connection to the database
-                conn = DriverManager.getConnection(url);
-
-                System.out.println("Connection to SQLite has been established.");
-
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            } finally {
-                try {
-                    if (conn != null) {
-                        conn.close();
-                    }
-                } catch (SQLException ex) {
-                    System.out.println(ex.getMessage());
+                if (sqlConnector != null) {
+                    sqlConnector.close();
                 }
+            } catch (SQLException ex) {
+                System.out.println(ex.getMessage());
             }
         }
-
     }
+
+    public void createTable() {
+        String url = "jdbc:sqlite:userData.db";
+
+        // SQL statement for creating a new table
+        String createSQL = "CREATE TABLE IF NOT EXISTS kevlarData (\n"
+                + "	Title text PRIMARY KEY,\n"
+                + "	UserName text NOT NULL,\n"
+                + "	Description text NOT NULL,\n"
+                + "	Password text NOT NULL,\n"
+                + ");";
+
+        try (Connection databaseConnection = DriverManager.getConnection(url);
+             Statement status = databaseConnection.createStatement()) {
+            // create a new table
+            status.execute(createSQL);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+}
+
+
+
 
 
 
