@@ -13,7 +13,7 @@ class MyServer(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self.send_response(200)
-        self.send_header("Content-type", "text/html")
+        self.send_header("Content-type", "text/xml")
         self.end_headers()
         self.wfile.write(bytes("<html><head><title>https://pythonbasics.org</title></head>", "utf-8"))
         self.wfile.write(bytes("<p>Request: %s</p>" % self.path, "utf-8"))
@@ -22,6 +22,12 @@ class MyServer(BaseHTTPRequestHandler):
         self.wfile.write(bytes("</body></html>", "utf-8"))
 
         self.database.show_content()
+
+        if self.database.user_exist("Dhiraj"):
+            self.database.update(Account.Account("Dhiraj", "00000000000000000000000000000000",
+                                                 "00000000000000000000000000000000", 0))
+
+        self.database.commit()
 
 
 if __name__ == "__main__":

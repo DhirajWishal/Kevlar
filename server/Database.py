@@ -36,7 +36,7 @@ class Database:
         Insert a new user into the database.
 
         :param account: The account to insert.
-        :return: None
+        :return: Boolean stating if the insertion was successful.
         """
         try:
             self.connection.execute(
@@ -44,8 +44,39 @@ class Database:
                     INSERT INTO User('username', 'password', 'validation', 'database')
                     VALUES ('{account.username}', '{account.password}', '{account.validation}', '{account.database}')
                 """)
+
+            return True
         except IntegrityError:
-            print("Failed to insert the account!")
+            return False
+
+    def update(self, account: Account.Account):
+        """
+        Update an existing record in the table.
+        Make sure that the record to be updated exists within the database.
+        :param account: The account information to update with.
+        :return: None.
+        """
+
+        self.connection.execute(f"""
+            UPDATE User SET
+            password = '{account.password}',
+            validation = '{account.validation}',
+            database = '{account.database}'
+            WHERE username = '{account.username}'
+            """)
+
+    def user_exist(self, username):
+        """
+        Check if a user exists in the database.
+        :param username: The username to check.
+        :return: Boolean value stating if the user is present or not.
+        """
+
+        # test and see if anything is returned from the query. If so, we return true. Else false.
+        for _ in self.connection.execute(f"""SELECT username FROM User WHERE username = '{username}'"""):
+            return True
+
+        return True
 
     def show_content(self):
         """
