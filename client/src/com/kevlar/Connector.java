@@ -1,5 +1,6 @@
 package com.kevlar;
 
+import javax.crypto.Cipher;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -29,11 +30,21 @@ public class Connector {
     }
 
 
-    public void getPublicKeyFromServer() throws Exception {
-        Sender sender = new Sender(Base64.getEncoder().encodeToString(publicKeyToXML().getBytes(StandardCharsets.UTF_8)), true);
+    public String handshakeWithServer() throws Exception {
+        Sender sender = new Sender(Base64.getEncoder().encodeToString(publicKeyToXML().getBytes(StandardCharsets.UTF_8)), false);
         String response = sender.getResponse();
-        System.out.println(response);
+        return (response);
     }
+    public void getServerPublicKey() throws Exception {
+        Cipher decrypt = Cipher.getInstance("RSA");
+        decrypt.init(Cipher.DECRYPT_MODE, theKeys.getPrivate());
+        String encryptedServerData=handshakeWithServer();
+        byte[] decodedServerPublicKey=Base64.getDecoder().decode(encryptedServerData);
+        byte[] decryptedPublicKey= decrypt.doFinal(decodedServerPublicKey);
+        String serverPublicKey=new String(decryptedPublicKey, StandardCharsets.UTF_8);
+    }
+
+
 
     public String publicKeyToXML() {
         String publicKey = String.valueOf(theKeys.getPublic());
@@ -77,9 +88,7 @@ public class Connector {
         }
     }
 
-    public void sendPublicKey() {
 
-    }
 
 
 }

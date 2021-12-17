@@ -78,6 +78,10 @@ public class DatabaseManager {
 
     }
 
+    public void getTitlePassword(){
+
+    }
+
 
 
 }
