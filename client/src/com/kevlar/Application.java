@@ -5,6 +5,7 @@ import java.util.Scanner;
 public class Application {
 	private Scanner scanner = new Scanner(System.in);
 
+
 	/**
 	 * Default constructor.
 	 */
