@@ -8,12 +8,13 @@ public class Sender {
 
     /**
      * Constructor.
-     * This will create a new socket and sill send a http request to the server.
+     * This will create a new socket and will send a http request to the server.
      *
      * @param xml The xml data to send.
+     * @param encrypted Whether or not the data is encrypted.
      * @throws MalformedURLException This constructor can throw a Malformed URL Exception.
      */
-    public Sender(String xml) throws MalformedURLException {
+    public Sender(String xml, boolean encrypted) throws MalformedURLException {
         URL url = new URL("http://localhost");
         try (Socket socket = new Socket(url.getHost(), 2255)) {
             OutputStream output = socket.getOutputStream();
@@ -21,6 +22,7 @@ public class Sender {
 
             writer.println("POST / HTTP/1.1");
             writer.println("Host: " + url.getHost());
+            writer.println("Encrypted: " + ((encrypted) ? "1": "0"));
             writer.println("Content-Type: text/xml");
             writer.println("Content-Length: " + xml.length());
             writer.println();
