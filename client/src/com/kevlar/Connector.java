@@ -18,7 +18,7 @@ import java.sql.Statement;
 public class Connector {
     private KeyPair theKeys = null;
     private static final String RSA = "RSA";
-    private URL serverURL = new URL(" localhost:2255");
+    private URL serverURL = new URL("http://localhost:2255");
     private HttpURLConnection connection = (HttpURLConnection) serverURL.openConnection();
 
 

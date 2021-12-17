@@ -24,14 +24,13 @@ class MyServer(BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/xml")
         self.end_headers()
         self.wfile.write(bytes(self.get_public_key(), "utf-8"))
-        print(self.request)
 
     def do_POST(self):
         self.send_response(200)
         self.send_header("Content-type", "text/xml")
         self.end_headers()
-        self.wfile.write(bytes(self.get_public_key(), "utf-8"))
-        print(self.request)
+        print(self.rfile.read(int(self.headers['Content-Length'])))
+        self.wfile.write(bytes("Niceeee", "utf-8"))
 
 
 if __name__ == "__main__":
