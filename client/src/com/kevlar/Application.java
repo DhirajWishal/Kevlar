@@ -167,7 +167,7 @@ public class Application {
 	 */
 	private void createAccount() {
 		boolean bConfirm = false;
-		String userName,masterPassword="",confirmPassword,validationKey="";
+		String userName,masterPassword,validationKey;
 
 		printSeparator();
 		System.out.println("\nEnter your Username: ");
@@ -176,41 +176,9 @@ public class Application {
 			System.out.println("\nPlease enter a Username between 5 and 30 characters: ");
 			userName = scanner.nextLine();
 		}
-		while (bConfirm == false) {
-			System.out.println("\nEnter Master Password: ");
-			masterPassword = scanner.nextLine();
-			while (masterPassword.length() < 8 || masterPassword.length() > 30) {
-				System.out.println("\nPlease enter a Master Password between 8 and 30 characters: ");
-				masterPassword = scanner.nextLine();
-			}
-			System.out.println("\nConfirm Password: ");
-			confirmPassword = scanner.nextLine();
-			if (confirmPassword.equals(masterPassword)) {
-				System.out.println("\nUsername & Password Created Succesfully!");
-				masterPassword=Hasher.getSHA256(masterPassword);
-				bConfirm=true;
-			}else{
-				System.out.println("\nPassword Mismatch please Re-enter!!");
-			}
-		}
-		bConfirm=false;
-		while (bConfirm == false) {
-			System.out.println("\nEnter a Validation key(Required to further the integrity of the Database): ");
-			validationKey = scanner.nextLine();
-			while (validationKey.length() < 8 || validationKey.length() > 30) {
-				System.out.println("\nPlease enter a Validation key between 8 and 30 characters: ");
-				validationKey = scanner.nextLine();
-			}
-			System.out.println("\nConfirm validation key: ");
-			confirmPassword = scanner.nextLine();
-			if (confirmPassword.equals(validationKey)) {
-				System.out.println("\nValidation key Created Succesfully!");
-				validationKey=Hasher.getSHA256(validationKey);
-				bConfirm=true;
-			}else{
-				System.out.println("\nValidation key Mismatch please Re-enter!!");
-			}
-		}
+		masterPassword=ValidatePassword.validate("Master Password");
+		System.out.println("\nA validation key is required to further the integrity of your password..");
+		validationKey=ValidatePassword.validate("Validation key");
 		userAccount = new UserAccount(userName,masterPassword,validationKey);
 		functionality();
 	}
@@ -234,11 +202,8 @@ public class Application {
 		printSeparator();
 		System.out.println("For what will this Password be stored for?: ");
 		title= scanner.nextLine();
-		System.out.println("Type in the password that you want to store: ");
-		password= scanner.nextLine();
-
-
-
+		password=ValidatePassword.validate("Password");
+		password = AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
 
 	}
 
@@ -265,5 +230,6 @@ public class Application {
 	public void cleanup() {
 		// Logic goes here.
 	}
+
 
 }
