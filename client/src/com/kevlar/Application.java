@@ -4,14 +4,18 @@ import java.util.Scanner;
 
 public class Application {
 	private Scanner scanner = new Scanner(System.in);
+	private UserAccount userAccount;
+	private Connector connector= new Connector();
+
 
 
 	/**
 	 * Default constructor.
 	 */
-	public Application() {
+	public Application() throws Exception {
 		System.out.println("Welcome to Kevlar!");
 	}
+
 
 	/**
 	 * Run the main application loop.
@@ -66,10 +70,14 @@ public class Application {
 					break;
 
 				case 2:
-					editPassword();
+					addPassword();
 					break;
 
 				case 3:
+					editPassword();
+					break;
+
+				case 4:
 					editValidtionKey();
 				break;
 
@@ -90,8 +98,9 @@ public class Application {
 		printSeparator();
 		System.out.println("Available commands: ");
 		System.out.println("1. View Password.");
-		System.out.println("2. Change Master Password.");
-		System.out.println("3. Change Validation Key.");
+		System.out.println("2. Add new password.");
+		System.out.println("3. Change Master Password.");
+		System.out.println("4. Change Validation Key.");
 		System.out.println("0. Logout of application.");
 		printSeparator();
 	}
@@ -204,7 +213,7 @@ public class Application {
 				System.out.println("\nValidation key Mismatch please Re-enter!!");
 			}
 		}
-		UserAccount userAccount = new UserAccount(userName,masterPassword,validationKey); 
+		userAccount = new UserAccount(userName,masterPassword,validationKey);
 		functionality();
 	}
 
@@ -219,6 +228,23 @@ public class Application {
 	}
 
 	/**
+	* Add a new password to the database
+	* */
+	private void addPassword(){
+		String title,password;
+
+		printSeparator();
+		System.out.println("For what will this Password be stored for?: ");
+		title= scanner.nextLine();
+		System.out.println("Type in the password that you want to store: ");
+		password= scanner.nextLine();
+
+
+
+
+	}
+
+	/**
 	 * Enter a new password to the database.
 	 */
 	private void editPassword() {
@@ -230,6 +256,7 @@ public class Application {
 	 * Enter a new password to the database.
 	 */
 	private void editValidtionKey() {
+
 		printSeparator();
 	}
 	

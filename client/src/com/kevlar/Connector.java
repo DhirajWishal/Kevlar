@@ -9,6 +9,9 @@ import java.net.URLEncoder;
 import java.security.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class Connector {
     private KeyPair theKeys = null;
@@ -25,17 +28,22 @@ public class Connector {
         //Generating the pair of keys
         theKeys = keyGenerator.generateKeyPair();
     }
+    public void setupConnection(){
+        publicKeyToXML();
+    }
+
 
     public void getPublicKeyFromServer() throws Exception {
         connection.setRequestMethod("POST");
     }
 
-    public void publicKeyToXML() {
+    public String publicKeyToXML() {
         String publicKey = String.valueOf(theKeys.getPublic());
         String publicXML = "<?xml version=\"1.0\"encoding=\"UTF-8\"?>";
         publicXML += "<kevlar mode=\"handshake\">";
         publicXML += "<public keysize=\"2048\">" + publicKey + "</public>";
         publicXML += "</kevlar>";
+        return (publicXML);
     }
 
     public void userDataToXML() {
@@ -77,6 +85,30 @@ public class Connector {
                     : finalString;
         }
     }
+    public void createSQL(){
+            Connection conn = null;
+            try {
+                // db parameters
+                String url = "jdbc:sqlite:C:/sqlite/db/chinook.db";
+                // create a connection to the database
+                conn = DriverManager.getConnection(url);
+
+                System.out.println("Connection to SQLite has been established.");
+
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            } finally {
+                try {
+                    if (conn != null) {
+                        conn.close();
+                    }
+                } catch (SQLException ex) {
+                    System.out.println(ex.getMessage());
+                }
+            }
+        }
+
+    }
 
 
-}
+
