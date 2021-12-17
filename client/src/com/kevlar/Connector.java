@@ -7,7 +7,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.*;
-import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.sql.Connection;
@@ -59,11 +58,11 @@ public class Connector {
     public void requestFromServer() throws IOException {
         Map<String, String> xmlHashMap = new HashMap<>();
         xmlHashMap.put("Content Type", "text/xml");
-        // connection.setDoOutput(true);
-        //DataOutputStream outPutStream = new DataOutputStream(connection.getOutputStream());
-        //outPutStream.writeBytes(hashMapStringBuilder.getxmlString(xmlHashMap));
-        //outPutStream.flush();
-        //outPutStream.close();
+        connection.setDoOutput(true);
+        DataOutputStream outPutStream = new DataOutputStream(connection.getOutputStream());
+        outPutStream.writeBytes(hashMapStringBuilder.getxmlString(xmlHashMap));
+        outPutStream.flush();
+        outPutStream.close();
 
     }
 
@@ -84,6 +83,10 @@ public class Connector {
                     ? finalString.substring(0, finalString.length() - 1)
                     : finalString;
         }
+    }
+
+    public void sendPublicKey(){
+
     }
 
 
