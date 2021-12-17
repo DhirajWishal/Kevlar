@@ -196,11 +196,13 @@ public class Application {
 	* Add a new password to the database
 	* */
 	private void addPassword(){
-		String title,password;
+		String title,password,titleUsername;
 
 		printSeparator();
 		System.out.println("For what will this Password be stored for?: ");
 		title= scanner.nextLine();
+		System.out.println("What username did you use for this account?: ");
+		titleUsername= scanner.nextLine();
 		password=ValidatePassword.validate("Password");
 		password = AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
 
