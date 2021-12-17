@@ -11,7 +11,7 @@ public class Sender {
      * This will create a new socket and sill send a http request to the server.
      *
      * @param xml The xml data to send.
-     * @throws MalformedURLException
+     * @throws MalformedURLException This constructor can throw a Malformed URL Exception.
      */
     public Sender(String xml) throws MalformedURLException {
         URL url = new URL("http://localhost");
@@ -26,23 +26,23 @@ public class Sender {
             writer.println();
             writer.println(xml);
 
+            //socket is an instance of Socket
             InputStream input = socket.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-            response = "";
+            InputStreamReader inputReader = new InputStreamReader(input);
+            BufferedReader bufferedReader = new BufferedReader(inputReader);
 
-            String line;
-            boolean shouldRecord = false;
-            while ((line = reader.readLine()) != null) {
-                if (line.equals("\n"))
-                    shouldRecord = true;
+            //code to read and print headers
+            while ((bufferedReader.readLine()).length() != 0) ;
 
-                if (shouldRecord)
-                    response += line + "\n";
-            }
+            //code to read the post payload data
+            StringBuilder payload = new StringBuilder();
+            while (bufferedReader.ready())
+                payload.append((char) bufferedReader.read());
+            response = payload.toString();
         } catch (UnknownHostException ex) {
-            System.out.println("Server not found: " + ex.getMessage());
+            System.out.println("Server not found!");
         } catch (IOException ex) {
-            System.out.println("I/O error: " + ex.getMessage());
+            System.out.println("I/O error!");
         }
     }
 

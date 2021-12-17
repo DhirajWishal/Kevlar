@@ -3,9 +3,6 @@ package com.kevlar;
 public class Main {
 	public static void main(String[] args) {
 		try {
-			Sender s = new Sender("hellooo");
-			System.out.println(s.getResponse());
-
 			Application application = new Application();
 			application.run();
 			application.cleanup();
