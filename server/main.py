@@ -32,6 +32,7 @@ class MyServer(BaseHTTPRequestHandler):
         self.wfile.write(bytes("Niceeee", "utf-8"))
 
     def handle_request(self, data: bytes):
+        is_encrypted = int(self.headers['Encrypted'])
         decrypted_data = CryptoService.from_base64(data)
         print(decrypted_data)
 

@@ -6,8 +6,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.sql.*;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.sql.Connection;
@@ -15,9 +17,6 @@ import java.sql.Connection;
 public class Connector {
     private KeyPair theKeys = null;
     private static final String RSA = "RSA";
-    private URL serverURL = new URL("http://localhost:2255");
-    private HttpURLConnection connection = (HttpURLConnection) serverURL.openConnection();
-
 
     public Connector() throws Exception {
         //Assigns KeyPairGenerator to generate using RSA
@@ -34,7 +33,9 @@ public class Connector {
 
 
     public void getPublicKeyFromServer() throws Exception {
-        connection.setRequestMethod("POST");
+        Sender sender = new Sender(Base64.getEncoder().encodeToString(publicKeyToXML().getBytes(StandardCharsets.UTF_8)), true);
+        String response = sender.getResponse();
+        System.out.println(response);
     }
 
     public String publicKeyToXML() {
@@ -85,7 +86,6 @@ public class Connector {
                     : finalString;
         }
     }
-
 
 
 }
