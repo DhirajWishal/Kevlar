@@ -46,7 +46,6 @@ public class Application {
 	 * Print the menu.
 	 */
 	private void printLoginMenu() {
-		connector.createTable();
 		printSeparator();
 		System.out.println("Available commands: ");
 		System.out.println("1. Login to system.");
