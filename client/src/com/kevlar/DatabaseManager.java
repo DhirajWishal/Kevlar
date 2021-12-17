@@ -94,19 +94,45 @@ public class DatabaseManager {
         }
 
     }
-    public void getPassword(String userTitle) {
-        String sqlQuery = "SELECT userName,password FROM kevlarData" +
-                "WHERE Title"+userTitle;
+
+    public String getPassword(String userTitle) {
+        String password = null;
+        String sqlQuery = "SELECT password FROM kevlarData" +
+                "WHERE Title=" + userTitle;
         try (Connection connection = this.sqlConnect();
              Statement statement = connection.createStatement();
              ResultSet results = statement.executeQuery(sqlQuery)) {
 
-            while (results.next()) {
-                System.out.println(results.getString("userName") + ":" +
-                        results.getString("password"));
+            if (results.next()) {
+                password = results.getString("password");
+
+            } else {
+                System.out.println("Title is not found");
+                password = null;
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+        return (password);
+    }
+
+    public String getUserName(String userTitle) {
+        String sqlQuery = "SELECT userName FROM kevlarData" +
+                "WHERE Title=" + userTitle;
+        String userName = null;
+        try (Connection connection = this.sqlConnect();
+             Statement statement = connection.createStatement();
+             ResultSet results = statement.executeQuery(sqlQuery)) {
+
+            if (results.next()) {
+                userName = results.getString("userName");
+            } else {
+                System.out.println("Title is not found");
+                userName = null;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return (userName);
     }
 }

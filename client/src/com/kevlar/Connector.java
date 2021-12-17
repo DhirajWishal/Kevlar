@@ -13,6 +13,9 @@ import java.util.Map;
 
 
 public class Connector {
+    /**
+     * the default constructor
+     */
     private KeyPair theKeys = null;
     private static final String RSA = "RSA";
 
