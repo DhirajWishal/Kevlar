@@ -78,10 +78,35 @@ public class DatabaseManager {
 
     }
 
-    public void getTitlePassword(){
+    public void getTitleDesciption() {
+        String sqlQuery = "SELECT Title,description FROM kevlarData";
+        try (Connection connection = this.sqlConnect();
+             Statement statement = connection.createStatement();
+             ResultSet results = statement.executeQuery(sqlQuery)) {
+
+
+            while (results.next()) {
+                System.out.println(results.getString("Title") + "\t" +
+                        results.getString("description"));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
 
     }
+    public void getPassword(String userTitle) {
+        String sqlQuery = "SELECT userName,password FROM kevlarData" +
+                "WHERE Title"+userTitle;
+        try (Connection connection = this.sqlConnect();
+             Statement statement = connection.createStatement();
+             ResultSet results = statement.executeQuery(sqlQuery)) {
 
-
-
+            while (results.next()) {
+                System.out.println(results.getString("userName") + ":" +
+                        results.getString("password"));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }
