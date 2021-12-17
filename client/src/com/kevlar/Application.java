@@ -6,12 +6,14 @@ public class Application {
 	private Scanner scanner = new Scanner(System.in);
 
 
+
 	/**
 	 * Default constructor.
 	 */
 	public Application() {
 		System.out.println("Welcome to Kevlar!");
 	}
+
 
 	/**
 	 * Run the main application loop.

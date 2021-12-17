@@ -20,13 +20,13 @@ class MyServer(BaseHTTPRequestHandler):
         return self.packager.generate_handshake(CryptoService.to_base64(self.packet_decryptor.public_key))
 
     def do_GET(self):
-        self.send_response(Responses.Responses.OK)
+        self.send_response(200)
         self.send_header("Content-type", "text/xml")
         self.end_headers()
         self.wfile.write(bytes(self.get_public_key(), "utf-8"))
 
     def do_POST(self):
-        self.send_response(Responses.Responses.OK)
+        self.send_response(200)
         self.send_header("Content-type", "text/xml")
         self.end_headers()
         self.wfile.write(bytes(self.get_public_key(), "utf-8"))
