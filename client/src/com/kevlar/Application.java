@@ -7,16 +7,13 @@ public class Application {
 	private UserAccount userAccount;
 	private Connector connector= new Connector();
 
-
-
 	/**
 	 * Default constructor.
 	 */
 	public Application() throws Exception {
 		System.out.println("Welcome to Kevlar!");
 	}
-
-
+	
 	/**
 	 * Run the main application loop.
 	 */

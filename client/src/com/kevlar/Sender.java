@@ -31,8 +31,13 @@ public class Sender {
             response = "";
 
             String line;
+            boolean shouldRecord = false;
             while ((line = reader.readLine()) != null) {
-                response += line + "\n";
+                if (line.equals("\n"))
+                    shouldRecord = true;
+
+                if (shouldRecord)
+                    response += line + "\n";
             }
         } catch (UnknownHostException ex) {
             System.out.println("Server not found: " + ex.getMessage());
