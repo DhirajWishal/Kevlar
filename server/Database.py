@@ -21,7 +21,7 @@ class Database:
             self.connection.execute(
                 """
                 CREATE TABLE User(
-                    username varchar(256) NOT NULL,
+                    username varchar(32) NOT NULL,
                     password char(32) NOT NULL,
                     validation char(32) NOT NULL,
                     database blob,

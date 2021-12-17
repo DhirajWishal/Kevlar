@@ -15,7 +15,6 @@ import javax.crypto.spec.SecretKeySpec;
  */
 
 public class AES {
-
     public static String encrypt(String password,String masterPassword,String username){
         try {
 

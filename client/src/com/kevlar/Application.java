@@ -5,16 +5,15 @@ import java.util.Scanner;
 public class Application {
 	private Scanner scanner = new Scanner(System.in);
 	private UserAccount userAccount;
-	private Connector connector;
-
+	private Connector connector= new Connector();
 
 	/**
 	 * Default constructor.
 	 */
-	public Application() {
+	public Application() throws Exception {
 		System.out.println("Welcome to Kevlar!");
 	}
-
+	
 	/**
 	 * Run the main application loop.
 	 */
