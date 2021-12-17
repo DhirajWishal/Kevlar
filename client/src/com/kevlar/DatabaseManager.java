@@ -1,6 +1,17 @@
 package com.kevlar;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
+import java.io.File;  // Import the File class
+import java.util.Scanner;
+
+// Specify the filename
 
 public class DatabaseManager {
     private Connection sqlConnect() {
@@ -135,4 +146,16 @@ public class DatabaseManager {
         }
         return (userName);
     }
+
+    public byte[] getHmac(String validation) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+        File databsaeFile = new File("userData.db");
+        Scanner myReader = new Scanner(databsaeFile);
+        byte[] content = Files.readAllBytes(Paths.get("userData.db"));
+        SecretKeySpec secretKeySpec = new SecretKeySpec(validation.getBytes(), "SHA-256");
+        Mac mac = Mac.getInstance("SHA-256");
+        mac.init(secretKeySpec);
+        return (mac.doFinal(content));
+
+    }
+
 }

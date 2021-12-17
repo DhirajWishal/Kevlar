@@ -7,7 +7,6 @@ public class Main {
 	public static void main(String[] args) {
 		try {
 			Connector connector = new Connector();
-			connector.getPublicKeyFromServer();
 
 			Application application = new Application();
 			application.run();
