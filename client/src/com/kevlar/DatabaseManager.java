@@ -89,7 +89,7 @@ public class DatabaseManager {
 
     }
 
-    public void getTitleDesciption() {
+    public void getTitleDescription() {
         String sqlQuery = "SELECT Title,description FROM kevlarData";
         try (Connection connection = this.sqlConnect();
              Statement statement = connection.createStatement();

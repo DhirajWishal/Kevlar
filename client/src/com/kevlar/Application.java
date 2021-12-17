@@ -6,6 +6,7 @@ public class Application {
 	private Scanner scanner = new Scanner(System.in);
 	private UserAccount userAccount;
 	private Connector connector= new Connector();
+	private DatabaseManager dbManager = new DatabaseManager();
 
 	/**
 	 * Default constructor.
@@ -59,6 +60,7 @@ public class Application {
 	 */
 	public void functionality() {
 		boolean bShouldRun = true;
+		//dbManager.getTitleDescription();
 		while (bShouldRun) {
 			printFunctionalMenu();
 			switch (getCommand()) {
@@ -71,12 +73,16 @@ public class Application {
 					break;
 
 				case 3:
-					editPassword();
+					editMasterPassword();
 					break;
 
 				case 4:
-					editValidtionKey();
+					editValidationKey();
 				break;
+
+				case 5:
+					editpassword();
+					break;
 
 				case 0:
 					bShouldRun = false;
@@ -98,6 +104,7 @@ public class Application {
 		System.out.println("2. Add new password.");
 		System.out.println("3. Change Master Password.");
 		System.out.println("4. Change Validation Key.");
+		System.out.println("5. Change a stored password");
 		System.out.println("0. Logout of application.");
 		printSeparator();
 	}
@@ -188,30 +195,52 @@ public class Application {
 	 * Index and decrypt a password.
 	 */
 	private void viewPassword() {
+		String title,password,username;
+
 		printSeparator();
-		// Logic goes here.
+		System.out.println("Which account password would you like to view?");
+		title=scanner.nextLine();
+		/**username=dbManager.getUserName(title);
+		while (username == null && title != "-1"){
+			System.out.println("Please enter an appropriate account title(-1 to exit)");
+			title=scanner.nextLine();
+			username=dbManager.getUserName(title);
+		}
+		password= dbManager.getPassword(title);
+		if (password != null){
+			password=AES.decrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
+			System.out.println("Your Username: "+username);
+			System.out.println("Your Password: "+password);
+			//can use file here!!
+		}else{
+			System.out.println("Exiting view password...");
+		}*/
+
 	}
 
 	/**
 	* Add a new password to the database
 	* */
 	private void addPassword(){
-		String title,password,titleUsername;
+		String title,password,titleUsername,description;
 
 		printSeparator();
-		System.out.println("For what will this Password be stored for?: ");
+		System.out.println("For what account will this Password be stored for?: ");
 		title= scanner.nextLine();
+		System.out.println("Add a small description (could be a hint to displayed alongside the prior entered title):  ");
+		description=scanner.nextLine();
 		System.out.println("What username did you use for this account?: ");
 		titleUsername= scanner.nextLine();
 		password=ValidatePassword.validate("Password");
 		password = AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
+		//dbManager.insertData(title,titleUsername,description,password);
 
 	}
 
 	/**
 	 * Enter a new password to the database.
 	 */
-	private void editPassword() {
+	private void editMasterPassword() {
 		printSeparator();
 		// Logic goes here.
 	}
@@ -219,8 +248,14 @@ public class Application {
 	/**
 	 * Enter a new password to the database.
 	 */
-	private void editValidtionKey() {
+	private void editValidationKey() {
+		printSeparator();
+	}
 
+	/**
+	 * Change currently stored password
+	 */
+	private void editpassword(){
 		printSeparator();
 	}
 	
