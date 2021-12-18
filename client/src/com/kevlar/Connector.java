@@ -106,7 +106,8 @@ public class Connector {
     //Reference https://www.baeldung.com/java-aes-encryption-decryption
 
     public static IvParameterSpec generateIv() {
-        byte[] iv = new byte[16];
+
+        byte[] iv = {(byte) 163, (byte) 127, (byte) 43, (byte) 227, 29, (byte) 181, (byte) 193, (byte) 101, (byte) 239, 2, (byte) 211, (byte) 149, (byte) 197, (byte) 37, (byte) 59, (byte) 83};
         new SecureRandom().nextBytes(iv);
         return new IvParameterSpec(iv);
     }
