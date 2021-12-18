@@ -46,6 +46,7 @@ class Database:
                 """)
 
             return True
+
         except IntegrityError:
             return False
 
