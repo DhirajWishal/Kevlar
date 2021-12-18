@@ -72,4 +72,13 @@ public class Connector {
         String EcryptedData = Base64.getEncoder().encodeToString(cipherData);
         Sender sender = new Sender(EcryptedData);
     }
+    public void sendDataToServer(String userName,String password) {
+        String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+        sendData += "<kevlar mode=\"login\">";
+        sendData += "<username>" + userName + "</username>";
+        sendData += "<password>" + password + "</password>>";
+        sendData += "</kevlar>";
+        Sender sender = new Sender(sendData);
+
+    }
 }

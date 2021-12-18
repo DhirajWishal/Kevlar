@@ -167,19 +167,22 @@ public class DatabaseManager {
     }
 
     public void checkForPassword(String title,String password){
+        Connection connection = this.sqlConnect();
+
+    }
+    public void deleteData() throws SQLException {
+        String sqlQuery = "DELETE FROM kevlarData";
+        try (Connection connection = this.sqlConnect()){
+             PreparedStatement statement = connection.prepareStatement(sqlQuery);
+            statement.executeUpdate();
+            System.out.println("Sucessfully deleted");
+        }catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
 
     }
 
-    public void sendDataToServer(String userName,String password) {
-        String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-        sendData += "<kevlar mode=\"account\">";
-        sendData += "<kevlar mode=\"login\">";
-        sendData += "<username>" + userName + "</username>";
-        sendData += "<password>" + password + "</password>>";
-        sendData += "</kevlar>";
-        Sender sender = new Sender(sendData);
 
-    }
 
 
 
