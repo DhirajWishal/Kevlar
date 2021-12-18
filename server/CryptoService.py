@@ -29,6 +29,8 @@ class PacketDecryption:
             serialization.PublicFormat.OpenSSH
         )
 
+        print(self.public_key)
+
     def decrypt(self, data):
         """
         Decrypt a block of data using the generated private key.
@@ -74,3 +76,29 @@ def from_base64(data):
     :return: The decoded data.
     """
     return base64.b64decode(data)
+
+
+class PacketEncrypter:
+    def __init__(self, data: bytes):
+        self.public_key = default_backend().load_pem_public_key(data)
+        print(self.public_key.public_bytes(
+            serialization.Encoding.OpenSSH,
+            serialization.PublicFormat.OpenSSH
+        ))
+
+    def encrypt(self, data: bytes):
+        try:
+            return self.public_key.encrypt(bytes("Encryption Error!", "utf-8"), padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            ))
+        except ValueError:
+            return bytes("Encryption Error!", "utf-8")
+
+
+def recover_public_key(mod, exponent):
+    return rsa.RSAPublicNumbers(mod, exponent).public_key().public_bytes(
+            serialization.Encoding.OpenSSH,
+            serialization.PublicFormat.OpenSSH
+        )

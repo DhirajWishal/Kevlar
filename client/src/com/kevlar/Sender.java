@@ -4,13 +4,18 @@ import java.io.*;
 import java.net.*;
 
 public class Sender {
+    private String head;
+    private String server;
+    private String date;
+    private String content;
+    private String length;
     private String response;
 
     /**
      * Constructor.
      * This will create a new socket and will send a http request to the server.
      *
-     * @param xml The xml data to send.
+     * @param xml       The xml data to send.
      * @param encrypted Whether or not the data is encrypted.
      * @throws MalformedURLException This constructor can throw a Malformed URL Exception.
      */
@@ -22,7 +27,7 @@ public class Sender {
 
             writer.println("POST / HTTP/1.1");
             writer.println("Host: " + url.getHost());
-            writer.println("Encrypted: " + ((encrypted) ? "1": "0"));
+            writer.println("Encrypted: " + ((encrypted) ? "1" : "0"));
             writer.println("Content-Type: text/xml");
             writer.println("Content-Length: " + xml.length());
             writer.println();
@@ -34,7 +39,12 @@ public class Sender {
             BufferedReader bufferedReader = new BufferedReader(inputReader);
 
             //code to read and print headers
-            while ((bufferedReader.readLine()).length() != 0) ;
+            head = bufferedReader.readLine();
+            server = bufferedReader.readLine();
+            date = bufferedReader.readLine();
+            content = bufferedReader.readLine();
+            length = bufferedReader.readLine();
+            bufferedReader.readLine();
 
             //code to read the post payload data
             StringBuilder payload = new StringBuilder();
@@ -46,6 +56,51 @@ public class Sender {
         } catch (IOException ex) {
             System.out.println("I/O error!");
         }
+    }
+
+    /**
+     * Get the head from the header.
+     *
+     * @return The header.
+     */
+    public String getHead() {
+        return head;
+    }
+
+    /**
+     * Get the server from the header.
+     *
+     * @return The server.
+     */
+    public String getServer() {
+        return server;
+    }
+
+    /**
+     * Get the date from the header.
+     *
+     * @return The date.
+     */
+    public String getDate() {
+        return date;
+    }
+
+    /**
+     * Get the content type from the header.
+     *
+     * @return The content type.
+     */
+    public String getContent() {
+        return content;
+    }
+
+    /**
+     * Get the content length from the header.
+     *
+     * @return The content length.
+     */
+    public String getLength() {
+        return length;
     }
 
     /**

@@ -5,6 +5,7 @@ import Account
 import CryptoService
 import Database
 import Packager
+import XMLParser
 
 hostName = "localhost"
 serverPort = 2255
@@ -27,19 +28,29 @@ class MyServer(BaseHTTPRequestHandler):
     def do_POST(self):
         self.send_response(200)
         self.send_header("Content-type", "text/xml")
-        self.end_headers()
         self.handle_request(self.rfile.read(int(self.headers['Content-Length'])))
-        self.wfile.write(bytes("Niceeee", "utf-8"))
 
     def handle_request(self, data: bytes):
         is_encrypted = int(self.headers['Encrypted'])
         decrypted_data = CryptoService.from_base64(data)
-        print(decrypted_data)
+        xml_parser = XMLParser.XMLParser(decrypted_data)
+
+        if xml_parser.mode == "handshake":
+            public_key = decrypted_data.decode("utf-8").replace(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kevlar mode=\"handshake\"><public keysize=\"2048\">", "")
+            public_key = public_key.replace("</public></kevlar>", "")
+            public_key = bytes(public_key, "utf-8")
+            encrypter = CryptoService.PacketEncrypter(public_key)
+            # print(CryptoService.recover_public_key(int(public_key), 65537))
+            data_to_send = CryptoService.to_base64(encrypter.encrypt(bytes(self.get_public_key(), "utf-8")))
+            # noinspection PyTypeChecker
+            self.send_header("Content-Length", len(data_to_send))
+            self.end_headers()
+            self.wfile.write(data_to_send)
 
 
 if __name__ == "__main__":
     webServer = HTTPServer((hostName, serverPort), MyServer)
-    print("Server started http://%s:%s" % (hostName, serverPort))
 
     try:
         webServer.serve_forever()
