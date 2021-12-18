@@ -1,50 +1,65 @@
 import base64
 
-from cryptography.hazmat.primitives import serialization as serialization, hashes, hmac
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes, hmac
+from cryptography.hazmat.primitives.ciphers import (
+    Cipher, algorithms, modes
+)
+
+import os
+
+default_initialization_vector = os.urandom(16)
+default_aes_key = hashes.SHA512
+default_salt = "Kevlar"
 
 
-class PacketDecryption:
+def generate_aes_key():
     """
-    Key generator object.
-    This object is used to generate the required RSA public and private keys.
+    Generate a random AES key to be used for client data encryption.
+    :return: The generated AES key.
+    """
+    hasher = hashes.Hash(hashes.SHA3_256())
+    hasher.update(os.urandom(1))
+    return hasher.finalize()
+
+
+class SymmetricService:
+    """
+    Symmetric key cryptographic service class. This class contains all the necessary methods and member variables
+    required for encryption and decryption of data packets.
     """
 
     def __init__(self):
-        self.key = rsa.generate_private_key(
-            backend=default_backend(),
-            public_exponent=65537,
-            key_size=2048
-        )
+        self.shared_key = generate_aes_key()
+        self.initialization_vector = os.urandom(16)
 
-        self.private_key = self.key.private_bytes(
-            serialization.Encoding.PEM,
-            serialization.PrivateFormat.PKCS8,
-            serialization.NoEncryption()
-        )
+        self.algorithm = Cipher
+        self.encryptor = Cipher(
+            algorithms.AES(self.shared_key),
+            modes.GCM(default_initialization_vector),
+        ).encryptor()
 
-        self.public_key = self.key.public_key().public_bytes(
-            serialization.Encoding.OpenSSH,
-            serialization.PublicFormat.OpenSSH
-        )
+        self.decryptor = Cipher(
+            algorithms.AES(self.shared_key),
+            modes.GCM(default_initialization_vector),
+        ).decryptor()
 
-        print(self.public_key)
+    def encrypt(self, data):
+        """
+        Encrypt a block of data.
+        :param data: The data to encrypt.
+        :return: The encrypted data.
+        """
+        self.encryptor.authenticate_additional_data(default_salt)
+        return self.encryptor.update(data) + self.encryptor.finalize()
 
     def decrypt(self, data):
         """
-        Decrypt a block of data using the generated private key.
+        Decrypt a block of data.
         :param data: The data to decrypt.
-        :return: The decrypted message.
+        :return: The decrypted data.
         """
-        return self.private_key.encrypt(
-            data,
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA512()),
-                algorithm=hashes.SHA512(),
-                label=None
-            )
-        )
+        self.decryptor.authenticate_additional_data(default_salt)
+        return self.decryptor.update(data) + self.decryptor.finalize()
 
 
 def hmac(database, validation_key):
@@ -76,29 +91,3 @@ def from_base64(data):
     :return: The decoded data.
     """
     return base64.b64decode(data)
-
-
-class PacketEncrypter:
-    def __init__(self, data: bytes):
-        self.public_key = default_backend().load_pem_public_key(data)
-        print(self.public_key.public_bytes(
-            serialization.Encoding.OpenSSH,
-            serialization.PublicFormat.OpenSSH
-        ))
-
-    def encrypt(self, data: bytes):
-        try:
-            return self.public_key.encrypt(bytes("Encryption Error!", "utf-8"), padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None
-            ))
-        except ValueError:
-            return bytes("Encryption Error!", "utf-8")
-
-
-def recover_public_key(mod, exponent):
-    return rsa.RSAPublicNumbers(mod, exponent).public_key().public_bytes(
-            serialization.Encoding.OpenSSH,
-            serialization.PublicFormat.OpenSSH
-        )

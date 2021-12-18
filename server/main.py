@@ -2,7 +2,6 @@
 import ssl
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-import Account
 import CryptoService
 import Database
 import Packager
@@ -15,10 +14,7 @@ serverPort = 2255
 class MyServer(BaseHTTPRequestHandler):
     database = Database.Database()
     packager = Packager.Packager()
-    packet_decryptor = CryptoService.PacketDecryption()
-
-    def get_public_key(self):
-        return self.packager.generate_handshake(CryptoService.to_base64(self.packet_decryptor.public_key))
+    crypto = CryptoService.SymmetricService()
 
     def do_GET(self):
         self.send_response(200)
@@ -38,14 +34,7 @@ class MyServer(BaseHTTPRequestHandler):
         xml_parser = XMLParser.XMLParser(decrypted_data)
 
         if xml_parser.mode == "handshake":
-            public_key = decrypted_data.decode("utf-8").replace(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kevlar mode=\"handshake\"><public keysize=\"2048\">", "")
-            public_key = public_key.replace("</public></kevlar>", "")
-            public_key = bytes(public_key, "utf-8")
-            encrypter = CryptoService.PacketEncrypter(public_key)
-            # print(CryptoService.recover_public_key(int(public_key), 65537))
-            data_to_send = CryptoService.to_base64(encrypter.encrypt(bytes(self.get_public_key(), "utf-8")))
-            # noinspection PyTypeChecker
+            data_to_send = self.packager.generate_handshake(CryptoService.to_base64(self.crypto.shared_key), self.crypto.initialization_vector)
             self.send_header("Content-Length", len(data_to_send))
             self.end_headers()
             self.wfile.write(data_to_send)
