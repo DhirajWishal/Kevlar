@@ -1,10 +1,17 @@
 package com.kevlar;
 
-import javax.crypto.Cipher;
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Base64;
+
+import static com.kevlar.DatabaseManager.base64TheFile;
+import static com.kevlar.DatabaseManager.getHmac;
 
 
 public class Connector {
@@ -78,19 +85,44 @@ public class Connector {
      *
      * @param userName User's Username
      * @param password User's password
-     * @param database User's own database file
      * @param hMac     User's Validation Key
      */
-    public void userDataToXML(String userName, String password, File database, String hMac) {
+    public String userDataToXML(String userName, String password,String validationKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+        String encodedDatabase=base64TheFile();
+        String hMac= getHmac(validationKey);
         String userDataXML = "<?xml version=\"1.0\"encoding=\"UTF-8\"?>";
         userDataXML += "<kevlar mode=\"account\">";
         userDataXML += "<username>" + userName + "</username>";
         userDataXML += "<password>" + password + "</password>>";
-        userDataXML += "<database>" + database + "</database>";
+        userDataXML += "<database>" + encodedDatabase + "</database>";
         userDataXML += "<hmac>" + hMac + "</hmac>";
         userDataXML += "</kevlar>";
+        return userDataXML;
+    }
+    //Reference https://www.baeldung.com/java-aes-encryption-decryption
+
+    public static IvParameterSpec generateIv() {
+        byte[] iv = new byte[16];
+        new SecureRandom().nextBytes(iv);
+        return new IvParameterSpec(iv);
     }
 
+    public void encryptData(String userName, String password, File database, String hMac, String serverAESKey, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException,
+            InvalidAlgorithmParameterException, InvalidKeyException,
+            BadPaddingException, IllegalBlockSizeException, IOException {
+        String userData = userDataToXML(userName, password, hMac);
+        byte[] userDataXML = userData.getBytes();
+        byte[] decodedAESKey = Base64.getDecoder().decode(serverAESKey);
+        // rebuild key using SecretKeySpec
+        SecretKey originalAESKey = new SecretKeySpec(decodedAESKey, 0, decodedAESKey.length, "AES");
+
+
+        Cipher cipherMethod = Cipher.getInstance("AES");
+        cipherMethod.init(Cipher.ENCRYPT_MODE, originalAESKey, iv);
+        byte[] cipherData = cipherMethod.doFinal(userDataXML);
+        String EcryptedData = Base64.getEncoder().encodeToString(cipherData);
+        Sender sender = new Sender(EcryptedData, true);
+    }
 
 }
 
