@@ -158,6 +158,8 @@ public class Application {
 		}
 		masterPassword = Hasher.getSHA256(masterPassword);
 
+		connector.sendDataToServer(userName,masterPassword);
+
 		//send username & password to raj to check if exists
 
 		/*
