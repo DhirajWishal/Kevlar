@@ -124,10 +124,10 @@ public class Connector {
             if ((serverUserData == "") && (serverPassword == "") && (serverDatabase == "") && (serverHMac == "")) {
                 validationChecker = 0;
             //returns 1 if the data is found on the server AND matches the user's credentials
-            } else if ((password.equals(serverPassword)) && (userName.equals(serverPassword))) {
+            } else if ((password.equals(serverPassword)) && (userName.equals(serverUserData))) {
                 validationChecker = 1;
             //returns 2 if the password does not match with the server's password
-            } else if ((!password.equals(serverPassword)) && (userName.equals(serverPassword))) {
+            } else if ((!password.equals(serverPassword)) && (userName.equals(serverUserData))) {
                 validationChecker = 2;
             }
         }
