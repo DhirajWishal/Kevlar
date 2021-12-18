@@ -34,7 +34,8 @@ class MyServer(BaseHTTPRequestHandler):
         xml_parser = XMLParser.XMLParser(decrypted_data)
 
         if xml_parser.mode == "handshake":
-            data_to_send = self.packager.generate_handshake(CryptoService.to_base64(self.crypto.shared_key), self.crypto.initialization_vector)
+            data_to_send = self.packager.generate_handshake(CryptoService.to_base64(self.crypto.shared_key),
+                                                            self.crypto.initialization_vector)
             self.send_header("Content-Length", len(data_to_send))
             self.end_headers()
             self.wfile.write(data_to_send)
@@ -42,11 +43,11 @@ class MyServer(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     webServer = HTTPServer((hostName, serverPort), MyServer)
-    webServer.socket = ssl.wrap_socket(webServer.socket,
-                                       server_side=True,
-                                       certfile='creds/cert.pem',
-                                       keyfile='creds/key.pem',
-                                       ssl_version=ssl.PROTOCOL_TLS)
+    webServer.socket = ssl.SSLContext.wrap_socket(webServer.socket,
+                                                  server_side=True,
+                                                  certfile='creds/cert.pem',
+                                                  keyfile='creds/key.pem',
+                                                  ssl_version=ssl.PROTOCOL_TLS)
 
     try:
         webServer.serve_forever()
