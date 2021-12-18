@@ -215,7 +215,7 @@ public class Application {
 		}
 		password= dbManager.getPassword(title);
 		if (password != null){
-
+			password=AES.decrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
 			System.out.println("Your Username: "+username);
 			System.out.println("Your Password: "+password);
 			//can use file here!!
