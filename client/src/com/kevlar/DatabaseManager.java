@@ -191,8 +191,6 @@ public class DatabaseManager {
 
         try (Connection connection = this.sqlConnect();
              PreparedStatement statement = connection.prepareStatement(sqlQuery)) {
-
-            statement.setString(4, newPassword);
             statement.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
