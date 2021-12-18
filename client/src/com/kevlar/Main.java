@@ -5,7 +5,6 @@ public class Main {
 		try {
 			Connector connector = new Connector();
 
-
 			Application application = new Application();
 			application.run();
 			application.cleanup();

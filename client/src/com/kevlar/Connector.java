@@ -47,11 +47,11 @@ public class Connector {
         return new IvParameterSpec(iv);
     }
 
-    public void setupConnection(){
+    public void setupConnection() {
         String connectionXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-        connectionXML+= "<kevlar mode=\"handshake\">";
-        connectionXML+="</kevlar>";
-        Sender sender = new Sender(connectionXML,false);
+        connectionXML += "<kevlar mode=\"handshake\">";
+        connectionXML += "</kevlar>";
+        Sender sender = new Sender(connectionXML, false);
         String response = sender.getResponse();
         System.out.println(response);
     }
