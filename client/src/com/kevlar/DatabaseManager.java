@@ -173,7 +173,7 @@ public class DatabaseManager {
             ResultSet results = statement.executeQuery(sqlQuery);
             while (results.next()) {
                 String databasePassword = results.getString("password");
-                if (databasePassword == password) {
+                if (databasePassword.equals(password)) {
                     validity = true;
                     return (validity);
                 }
@@ -208,7 +208,7 @@ public class DatabaseManager {
             ResultSet results = statement.executeQuery(sqlQuery);
             while (results.next()) {
                 String databaseTitle = results.getString("Title");
-                if (databaseTitle == title) {
+                if (databaseTitle.equals(title)) {
                     validity = true;
                     return (validity);
                 }
