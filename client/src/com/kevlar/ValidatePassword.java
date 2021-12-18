@@ -24,7 +24,6 @@ public class ValidatePassword {
             confirm = scanner.nextLine();
             if (confirm.equals(value)) {
                 System.out.println("\n" + type + " Created Succesfully!");
-                value = Hasher.getSHA256(value);
                 bConfirm = true;
             } else {
                 System.out.println("\n" + type + " Mismatch please Re-enter!!");
