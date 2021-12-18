@@ -1,5 +1,6 @@
 package com.kevlar;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Application {
@@ -22,6 +23,11 @@ public class Application {
 		boolean bShouldRun = true;
 		while (bShouldRun) {
 			printLoginMenu();
+			try {
+				dbManager.deleteData();
+			}catch (SQLException e){
+				System.out.println("previous database not deleted!!");
+			}
 			switch (getCommand()) {
 				case 1:
 					login();
@@ -62,7 +68,12 @@ public class Application {
 		boolean bShouldRun = true;
 
 		while (bShouldRun) {
+			printSeparator();
+			System.out.println("Title     Description");
+			printSeparator();
 			dbManager.getTitleDescription();
+			printSeparator();
+			System.out.println("\n");
 			printFunctionalMenu();
 			switch (getCommand()) {
 				case 1:
@@ -160,9 +171,11 @@ public class Application {
 
 		connector.sendDataToServer(userName,masterPassword);
 
-		//send username & password to raj to check if exists
+		/**
+		 * check if username and password exists
+		 */
 
-		/*
+
 		System.out.println("\nEnter Validation key: ");
 		String validationKey = scanner.nextLine();
 		while (validationKey.length() < 8 || validationKey.length() > 30) {
@@ -170,7 +183,8 @@ public class Application {
 			validationKey = scanner.nextLine();
 		}
 		validationKey = Hasher.getSHA256(validationKey);
-		*/
+		userAccount = new UserAccount(userName,masterPassword,validationKey);
+
 	}
 
 	/**
@@ -210,7 +224,7 @@ public class Application {
 		System.out.println("Which account password would you like to view?");
 		title=scanner.nextLine();
 		username=dbManager.getUserName(title);
-		while (username == null && title.equals("-1")){
+		while (username==null && !title.equals("-1")){
 			System.out.println("Please enter an appropriate account title(-1 to exit)");
 			title=scanner.nextLine();
 			username=dbManager.getUserName(title);
