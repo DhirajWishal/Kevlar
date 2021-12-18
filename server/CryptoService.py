@@ -37,7 +37,7 @@ class SymmetricService:
 
         self.decryptor = Cipher(
             algorithms.AES(self.shared_key),
-            modes.GCM(self.initialization_vector),
+            modes.GCM(self.initialization_vector, self.encryptor.tag),
         ).decryptor()
 
     def encrypt(self, data: bytes):
