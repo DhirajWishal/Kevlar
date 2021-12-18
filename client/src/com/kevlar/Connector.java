@@ -100,27 +100,34 @@ public class Connector {
         sendData += "<username>" + userName + "</username>";
         sendData += "<password>" + password + "</password>>";
         sendData += "</kevlar>";
-        Sender sender = new Sender(sendData, true);
+        Sender sender = new Sender(sendData, false);
         String serverData = sender.getResponse();
         int responseLength = serverData.length();
         Document xmlDoc = convertStringToXMLDocument(serverData);
         NodeList kevlarDataByNode = xmlDoc.getElementsByTagName("kevlar");
+        String serverUserData = null;
+        String serverPassword = null;
+        String serverDatabase = null;
+        String serverHMac = null;
+        Boolean noDataChecker = false;
         for (int temp = 0; temp < kevlarDataByNode.getLength(); temp++) {
             Node kevlarNode = kevlarDataByNode.item(temp);
             if (kevlarNode.getNodeType() == Node.ELEMENT_NODE) {
-
                 Element kevlarElement = (Element) kevlarNode;
                 String id = kevlarElement.getAttribute("id");
-
-                // get text
-                String serverUserData = kevlarElement.getElementsByTagName("username").item(0).getTextContent();
-                String serverPassword = kevlarElement.getElementsByTagName("password").item(0).getTextContent();
-                String serverDatabase = kevlarElement.getElementsByTagName("database").item(0).getTextContent();
-                String serverHMac = kevlarElement.getElementsByTagName("hmac").item(0).getTextContent();
+                serverUserData = kevlarElement.getElementsByTagName("username").item(0).getTextContent();
+                serverPassword = kevlarElement.getElementsByTagName("password").item(0).getTextContent();
+                serverDatabase = kevlarElement.getElementsByTagName("database").item(0).getTextContent();
+                serverHMac = kevlarElement.getElementsByTagName("hmac").item(0).getTextContent();
+            }
+            if ((serverUserData == null) && (serverPassword == null) && (serverDatabase == null) && (serverHMac == null)) {
+                noDataChecker = true;
+            }
+            if ((noDataChecker) && (password.equals(serverPassword))){
 
             }
-        }
 
+        }
 
 
     }

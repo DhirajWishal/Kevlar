@@ -173,7 +173,7 @@ public class DatabaseManager {
             ResultSet results = statement.executeQuery(sqlQuery);
             while (results.next()) {
                 String databasePassword = results.getString("password");
-                if (databasePassword == password) {
+                if (databasePassword.equals(password)) {
                     validity = true;
                     return (validity);
                 }
@@ -191,8 +191,6 @@ public class DatabaseManager {
 
         try (Connection connection = this.sqlConnect();
              PreparedStatement statement = connection.prepareStatement(sqlQuery)) {
-
-            statement.setString(4, newPassword);
             statement.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -208,7 +206,7 @@ public class DatabaseManager {
             ResultSet results = statement.executeQuery(sqlQuery);
             while (results.next()) {
                 String databaseTitle = results.getString("Title");
-                if (databaseTitle == title) {
+                if (databaseTitle.equals(title)) {
                     validity = true;
                     return (validity);
                 }
@@ -224,7 +222,6 @@ public class DatabaseManager {
         try (Connection connection = this.sqlConnect()) {
             PreparedStatement statement = connection.prepareStatement(sqlQuery);
             statement.executeUpdate();
-            System.out.println("Sucessfully deleted");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

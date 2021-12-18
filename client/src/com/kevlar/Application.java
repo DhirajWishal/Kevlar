@@ -1,6 +1,10 @@
 package com.kevlar;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.Base64;
 import java.util.Scanner;
 
 public class Application {
@@ -149,7 +153,7 @@ public class Application {
 	 * Login to the kevlar system.
 	 */
 	private void login() {
-		String masterPassword,userName;
+		String masterPassword,userName,base64un,base64mp,base64vk;
 
 		printSeparator();
 
@@ -169,7 +173,9 @@ public class Application {
 		}
 		masterPassword = Hasher.getSHA256(masterPassword);
 
-		connector.sendDataToServer(userName,masterPassword);
+		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
+		base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
+		connector.sendDataToServer(base64un,base64mp);
 
 		/**
 		 * check if username and password exists
@@ -185,6 +191,14 @@ public class Application {
 		validationKey = Hasher.getSHA256(validationKey);
 		userAccount = new UserAccount(userName,masterPassword,validationKey);
 
+		base64vk= Base64.getEncoder().encodeToString(validationKey.getBytes());
+
+		try {
+			connector.userDataToXML(base64un, base64mp, base64vk);
+		}catch(IOException | NoSuchAlgorithmException | InvalidKeyException e){
+			System.out.println(e.getMessage());
+		}
+
 	}
 
 	/**
@@ -192,7 +206,7 @@ public class Application {
 	 */
 	private void createAccount() {
 		boolean bConfirm = false;
-		String userName,masterPassword,validationKey;
+		String userName,masterPassword,validationKey,base64un,base64mp,base64vk;
 
 		printSeparator();
 		System.out.println("\nEnter your Username: ");
@@ -205,7 +219,19 @@ public class Application {
 		System.out.println("\nA validation key is required to further the integrity of your password..");
 		validationKey=ValidatePassword.validate("Validation key");
 		masterPassword=Hasher.getSHA256(masterPassword);
+		validationKey=Hasher.getSHA256(validationKey);
 		userAccount = new UserAccount(userName,masterPassword,validationKey);
+
+		//encode in base64 and send to server
+		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
+		base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
+		base64vk= Base64.getEncoder().encodeToString(validationKey.getBytes());
+
+		try {
+			connector.newUserDataToXML(base64un, base64mp, base64vk);
+		}catch(IOException | NoSuchAlgorithmException | InvalidKeyException e){
+			System.out.println(e.getMessage());
+		}
 
 		dbManager.createDatabase();
 		dbManager.createTable();
@@ -279,7 +305,41 @@ public class Application {
 	 * Change currently stored password
 	 */
 	private void editpassword(){
+		String title,password;
+		boolean bexists;
+
 		printSeparator();
+		System.out.println("Which account password do you wish to change?: ");
+		title=scanner.nextLine();
+		bexists=dbManager.checkForTitle(title);
+		while (bexists==false && !title.equals("-1")){
+			System.out.println("Please enter proper account name!(-1 to exit)");
+			title=scanner.nextLine();
+			bexists=dbManager.checkForTitle(title);
+		}
+		if (!title.equals("-1")) {
+			System.out.println("Type in previously entered password: ");
+			password = scanner.nextLine();
+			password=AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
+			bexists = dbManager.checkForPassword(title, password);
+			while (bexists==false && !password.equals("-1")){
+				System.out.println("Password incorrect Re-Enter!(-1 to exit)");
+				password=scanner.nextLine();
+				password=AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
+				bexists = dbManager.checkForPassword(title, password);
+			}
+			if (!password.equals("-1")){
+				password=ValidatePassword.validate("new Password");
+				password=AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
+				dbManager.changePassword(title,password);
+				System.out.println("Password changed successfully!!");
+			}else{
+				System.out.println("Password change failed User could not remember past password");
+			}
+
+		}else{
+			System.out.println("Password change failed invalid account name");
+		}
 	}
 	
 
