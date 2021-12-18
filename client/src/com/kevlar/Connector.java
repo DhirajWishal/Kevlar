@@ -29,6 +29,7 @@ public class Connector {
     public Connector() throws Exception {
     }
 
+
     /**
      * Takes the userInput and converts them to the XML format
      *
@@ -87,6 +88,8 @@ public class Connector {
 
         String key = payload[0];
         IvParameterSpec initializationVectorSpec = new IvParameterSpec(ivData);
+    }
+    public void stringToSecretKey(String Key){
     }
 
     public void encryptData(String userName, String password, File database, String hMac, String serverAESKey, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException,
