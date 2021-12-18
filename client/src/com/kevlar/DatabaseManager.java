@@ -1,6 +1,17 @@
 package com.kevlar;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
+import java.io.File;  // Import the File class
+import java.util.Scanner;
+
+// Specify the filename
 
 public class DatabaseManager {
     private Connection sqlConnect() {
@@ -78,6 +89,73 @@ public class DatabaseManager {
 
     }
 
+    public void getTitleDescription() {
+        String sqlQuery = "SELECT Title,description FROM kevlarData";
+        try (Connection connection = this.sqlConnect();
+             Statement statement = connection.createStatement();
+             ResultSet results = statement.executeQuery(sqlQuery)) {
 
+
+            while (results.next()) {
+                System.out.println(results.getString("Title") + "\t" +
+                        results.getString("description"));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
+    public String getPassword(String userTitle) {
+        String password = null;
+        String sqlQuery = "SELECT password FROM kevlarData" +
+                "WHERE Title=" + userTitle;
+        try (Connection connection = this.sqlConnect();
+             Statement statement = connection.createStatement();
+             ResultSet results = statement.executeQuery(sqlQuery)) {
+
+            if (results.next()) {
+                password = results.getString("password");
+
+            } else {
+                System.out.println("Title is not found");
+                password = null;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return (password);
+    }
+
+    public String getUserName(String userTitle) {
+        String sqlQuery = "SELECT userName FROM kevlarData" +
+                "WHERE Title=" + userTitle;
+        String userName = null;
+        try (Connection connection = this.sqlConnect();
+             Statement statement = connection.createStatement();
+             ResultSet results = statement.executeQuery(sqlQuery)) {
+
+            if (results.next()) {
+                userName = results.getString("userName");
+            } else {
+                System.out.println("Title is not found");
+                userName = null;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return (userName);
+    }
+
+    public byte[] getHmac(String validation) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+        File databsaeFile = new File("userData.db");
+        Scanner myReader = new Scanner(databsaeFile);
+        byte[] content = Files.readAllBytes(Paths.get("userData.db"));
+        SecretKeySpec secretKeySpec = new SecretKeySpec(validation.getBytes(), "SHA-256");
+        Mac mac = Mac.getInstance("SHA-256");
+        mac.init(secretKeySpec);
+        return (mac.doFinal(content));
+
+    }
 
 }
