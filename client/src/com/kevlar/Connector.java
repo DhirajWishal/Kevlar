@@ -36,6 +36,10 @@ public class Connector {
      * @param userName User's Username
      * @param password User's password
      */
+    private String key="";
+    private byte[] decodedAES;
+    private SecretKey aesKey;
+    private IvParameterSpec initializationVectorSpec;
     public String userDataToXML(String userName, String password, String validationKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         String encodedDatabase = base64TheFile();
         String hMac = getHmac(validationKey);
@@ -86,36 +90,40 @@ public class Connector {
         for (int i = 1; i < payload.length; ++i)
             ivData[i - 1] = (byte) Integer.parseInt(payload[i].strip());
 
-        String key = payload[0];
-        IvParameterSpec initializationVectorSpec = new IvParameterSpec(ivData);
-    }
-    public void stringToSecretKey(String Key){
+         key = payload[0];
+         initializationVectorSpec = new IvParameterSpec(ivData);
+        byte[] byteAES=key.getBytes();
+        byte[] decodedAES=Base64.getDecoder().decode(byteAES);
+        aesKey = new SecretKeySpec(decodedAES, 0, decodedAES.length, "AES");
     }
 
-    public void encryptData(String userName, String password, File database, String hMac, String serverAESKey, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException,
+    public void encryptData(String userName, String password, File database, String hMac) throws NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, InvalidKeyException,
             BadPaddingException, IllegalBlockSizeException, IOException {
         String userData = userDataToXML(userName, password, hMac);
         byte[] userDataXML = userData.getBytes();
-        byte[] decodedAESKey = Base64.getDecoder().decode(serverAESKey);
         // rebuild key using SecretKeySpec
-        SecretKey originalAESKey = new SecretKeySpec(decodedAESKey, 0, decodedAESKey.length, "AES");
-
-
+        SecretKey originalAESKey = new SecretKeySpec(decodedAES, 0, decodedAES.length, "AES");
         Cipher cipherMethod = Cipher.getInstance("AES");
-        cipherMethod.init(Cipher.ENCRYPT_MODE, originalAESKey, iv);
+        cipherMethod.init(Cipher.ENCRYPT_MODE, originalAESKey, initializationVectorSpec);
         byte[] cipherData = cipherMethod.doFinal(userDataXML);
-        String EcryptedData = Base64.getEncoder().encodeToString(cipherData);
-        Sender sender = new Sender(EcryptedData, true);
+        String ecryptedData = Base64.getEncoder().encodeToString(cipherData);
+        Sender sender = new Sender(ecryptedData, true);
     }
 
-    public Integer sendDataToServer(String userName, String password) {
+    public Integer sendDataToServer(String userName, String password) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         sendData += "<kevlar mode=\"login\">";
         sendData += "<username>" + userName + "</username>";
         sendData += "<password>" + password + "</password>>";
         sendData += "</kevlar>";
-        Sender sender = new Sender(sendData, false);
+        byte[] byteData=sendData.getBytes();
+        Cipher cipherMethod = Cipher.getInstance("AES");
+        cipherMethod.init(Cipher.ENCRYPT_MODE, aesKey, initializationVectorSpec);
+        byte[] bytesToSend=cipherMethod.doFinal(byteData);
+        String finalData  = Base64.getEncoder().encodeToString(bytesToSend);
+        System.out.println("final data"+" "+finalData);
+        Sender sender = new Sender(finalData, true);
         String serverData = sender.getResponse();
         int responseLength = serverData.length();
         Document xmlDoc = convertStringToXMLDocument(serverData);

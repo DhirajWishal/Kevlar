@@ -1,6 +1,10 @@
 package com.kevlar;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -13,6 +17,7 @@ public class Application {
 	private Connector connector= new Connector();
 	private DatabaseManager dbManager = new DatabaseManager();
 
+
 	/**
 	 * Default constructor.
 	 */
@@ -23,7 +28,7 @@ public class Application {
 	/**
 	 * Run the main application loop.
 	 */
-	public void run() {
+	public void run() throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
 		boolean bShouldRun = true;
 		while (bShouldRun) {
 			printLoginMenu();
@@ -152,7 +157,7 @@ public class Application {
 	/**
 	 * Login to the kevlar system.
 	 */
-	private void login() {
+	private void login() throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
 		String masterPassword,userName,base64un,base64mp,base64vk;
 
 		printSeparator();
