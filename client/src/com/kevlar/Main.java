@@ -3,10 +3,7 @@ package com.kevlar;
 public class Main {
 	public static void main(String[] args) {
 		try {
-			Connector connector = new Connector();
-			connector.setupConnection();
-
-			Application application = new Application();
+            Application application = new Application();
 			application.run();
 			application.cleanup();
 		}
