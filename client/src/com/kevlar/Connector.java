@@ -75,6 +75,18 @@ public class Connector {
         Sender sender = new Sender(connectionXML, false);
         String response = sender.getResponse();
         System.out.println(response);
+        response = response.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?><kevlar><key>b'", "");
+        response = response.replace("'</key><iv>[", ",");
+        response = response.replace("]</iv></kevlar>", "");
+
+        String[] payload = response.split(",");
+        byte[] ivData = new byte[payload.length - 1];
+
+        for (int i = 1; i < payload.length; ++i)
+            ivData[i - 1] = (byte) Integer.parseInt(payload[i].strip());
+
+        String key = payload[0];
+        IvParameterSpec initializationVectorSpec = new IvParameterSpec(ivData);
     }
 
     public void encryptData(String userName, String password, File database, String hMac, String serverAESKey, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException,
@@ -105,7 +117,7 @@ public class Connector {
         int responseLength = serverData.length();
         Document xmlDoc = convertStringToXMLDocument(serverData);
         NodeList kevlarDataByNode = xmlDoc.getElementsByTagName("kevlar");
-        String serverUserData ="";
+        String serverUserData = "";
         String serverPassword = "";
         String serverDatabase = "";
         String serverHMac = "";
@@ -123,10 +135,10 @@ public class Connector {
             //returns0 if the data is not found in the server
             if ((serverUserData == "") && (serverPassword == "") && (serverDatabase == "") && (serverHMac == "")) {
                 validationChecker = 0;
-            //returns 1 if the data is found on the server AND matches the user's credentials
+                //returns 1 if the data is found on the server AND matches the user's credentials
             } else if ((password.equals(serverPassword)) && (userName.equals(serverPassword))) {
                 validationChecker = 1;
-            //returns 2 if the password does not match with the server's password
+                //returns 2 if the password does not match with the server's password
             } else if ((!password.equals(serverPassword)) && (userName.equals(serverPassword))) {
                 validationChecker = 2;
             }
