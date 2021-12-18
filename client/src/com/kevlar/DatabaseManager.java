@@ -128,7 +128,7 @@ public class DatabaseManager {
 
     public String getUserName(String userTitle) {
         String sqlQuery = "SELECT userName FROM kevlarData " +
-                "WHERE Title=\"" + userTitle + "\"" ;
+                "WHERE Title=\"" + userTitle + "\"";
         String userName = null;
         try (Connection connection = this.sqlConnect();
              Statement statement = connection.createStatement();
@@ -154,8 +154,8 @@ public class DatabaseManager {
         SecretKeySpec secretKeySpec = new SecretKeySpec(validation.getBytes(), "SHA-256");
         Mac mac = Mac.getInstance("SHA-256");
         mac.init(secretKeySpec);
-        byte[] byteHmac=mac.doFinal(content);
-        String finalHMACKey= Base64.getEncoder().encodeToString(byteHmac);
+        byte[] byteHmac = mac.doFinal(content);
+        String finalHMACKey = Base64.getEncoder().encodeToString(byteHmac);
         return finalHMACKey;
     }
 
@@ -166,24 +166,55 @@ public class DatabaseManager {
         return base64File;
     }
 
-    public void checkForPassword(String title,String password){
-        Connection connection = this.sqlConnect();
-
+    public Boolean checkForPassword(String title, String password) {
+        String sqlQuery = "SELECT userName FROM kevlarData " +
+                "WHERE Title=\"" + title + "\"";
+        Boolean validity = false;
+        try (Connection connection = this.sqlConnect()) {
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sqlQuery);
+            while (results.next()) {
+                String databasePassword = results.getString("password");
+                if (databasePassword == password) {
+                    validity = true;
+                    return (validity);
+                } else {
+                    System.out.println("Password is not found within the database");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return validity;
     }
-    public void deleteData() throws SQLException {
-        String sqlQuery = "DELETE FROM kevlarData";
-        try (Connection connection = this.sqlConnect()){
-             PreparedStatement statement = connection.prepareStatement(sqlQuery);
+
+    public void changePassword(String title, String newPassword) {
+        String sqlQuery = "UPDATE kevlarData " +
+                "SET password=\""+newPassword+"\"" +
+                "WHERE Title=\"" + title + "\"";
+
+        try (Connection connection = this.sqlConnect();
+             PreparedStatement statement = connection.prepareStatement(sqlQuery)) {
+
+            statement.setString(4, newPassword);
             statement.executeUpdate();
-            System.out.println("Sucessfully deleted");
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
     }
 
+    public void deleteData() throws SQLException {
+        String sqlQuery = "DELETE FROM kevlarData";
+        try (Connection connection = this.sqlConnect()) {
+            PreparedStatement statement = connection.prepareStatement(sqlQuery);
+            statement.executeUpdate();
+            System.out.println("Sucessfully deleted");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
 
-
+    }
 
 
 }
