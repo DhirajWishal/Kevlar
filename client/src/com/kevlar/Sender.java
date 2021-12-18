@@ -17,9 +17,10 @@ public class Sender {
      * Constructor.
      * This will create a new socket and will send a http request to the server.
      *
-     * @param xml      The xml data to send.
+     * @param xml       The xml data to send.
+     * @param encrypted Whether the xml data is encrypted.
      */
-    public Sender(String xml) {
+    public Sender(String xml, boolean encrypted) {
         try {
             // Create the trust manager.
             TrustManager[] trustManager = new TrustManager[]{new TrustManager()};
@@ -43,6 +44,7 @@ public class Sender {
             // Write the http content.
             writer.println("POST / HTTP/1.1");
             writer.println("Host: " + url.getHost());
+            writer.println("Encrypted: " + (encrypted ? "1" : "0"));
             writer.println("Content-Type: text/xml");
             writer.println("Content-Length: " + xml.length());
             writer.println();
