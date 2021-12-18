@@ -117,7 +117,6 @@ public class DatabaseManager {
                 password = results.getString("password");
 
             } else {
-                System.out.println("Title is not found");
                 password = null;
             }
         } catch (SQLException e) {
@@ -137,7 +136,6 @@ public class DatabaseManager {
             if (results.next()) {
                 userName = results.getString("userName");
             } else {
-                System.out.println("Title is not found");
                 userName = null;
             }
         } catch (SQLException e) {
