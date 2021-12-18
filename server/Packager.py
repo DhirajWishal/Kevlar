@@ -9,15 +9,16 @@ class Packager:
         self.begin_root = "<kevlar>"
         self.end_root = "</kevlar>"
 
-    def generate_handshake(self, key, iv):
+    def generate_handshake(self, key: str, iv: bytes):
         """
         Generate handshake by transmitting the key and IV to the client.
         :param key: The key to be sent.
         :param iv: The initialization vector to be sent.
         :return: The send-able xml document.
         """
+        iv_array = [x for x in iv]
 
         document = self.xml_version + self.begin_root
         document += f"<key>{key}</key>"
-        document += f"<iv>{iv}</iv>"
+        document += f"<iv>{iv_array}</iv>"
         return document + self.end_root
