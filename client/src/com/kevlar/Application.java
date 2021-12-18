@@ -23,6 +23,7 @@ public class Application {
 	 */
 	public Application() throws Exception {
 		System.out.println("Welcome to Kevlar!");
+		connector.setupConnection();
 	}
 	
 	/**
@@ -353,7 +354,7 @@ public class Application {
 	/**
 	 * verify password and username
 	 */
-	public boolean verifyLogin(Integer checker,String userName,String masterPassword){
+	public boolean verifyLogin(Integer checker,String userName,String masterPassword) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
 		String base64un,base64mp,leaver;
 
 		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
