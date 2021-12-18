@@ -38,6 +38,17 @@ public class Connector {
         userDataXML += "</kevlar>";
         return userDataXML;
     }
+    public String newUserDataToXML(String userName, String password, String validationKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+        String encodedDatabase = base64TheFile();
+        String userDataXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+        userDataXML += "<kevlar mode=\"account\">";
+        userDataXML += "<username>" + userName + "</username>";
+        userDataXML += "<password>" + password + "</password>>";
+        userDataXML += "<database>" + encodedDatabase + "</database>";
+        userDataXML += "<validation>" + validationKey + "</validation>";
+        userDataXML += "</kevlar>";
+        return userDataXML;
+    }
     //Reference https://www.baeldung.com/java-aes-encryption-decryption
 
     public static IvParameterSpec generateIv() {
@@ -72,13 +83,17 @@ public class Connector {
         String EcryptedData = Base64.getEncoder().encodeToString(cipherData);
         Sender sender = new Sender(EcryptedData);
     }
-    public void sendDataToServer(String userName,String password) {
+
+    public void sendDataToServer(String userName, String password) {
         String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         sendData += "<kevlar mode=\"login\">";
         sendData += "<username>" + userName + "</username>";
         sendData += "<password>" + password + "</password>>";
         sendData += "</kevlar>";
         Sender sender = new Sender(sendData);
+        String serverData = sender.getResponse();
+        int responseLength = serverData.length();
 
     }
+
 }
