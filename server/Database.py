@@ -45,6 +45,8 @@ class Database:
                     VALUES ('{account.username}', '{account.password}', '{account.validation}', '{account.database}')
                 """)
 
+            self.commit()
+
             return True
 
         except IntegrityError:
@@ -65,6 +67,8 @@ class Database:
             database = '{account.database}'
             WHERE username = '{account.username}'
             """)
+
+        self.commit()
 
     def user_exist(self, username):
         """

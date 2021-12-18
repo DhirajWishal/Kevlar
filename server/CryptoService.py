@@ -7,10 +7,6 @@ from cryptography.hazmat.primitives.ciphers import (
 
 import os
 
-default_initialization_vector = os.urandom(16)
-default_aes_key = hashes.SHA512
-default_salt = "Kevlar"
-
 
 def generate_aes_key():
     """
@@ -31,16 +27,17 @@ class SymmetricService:
     def __init__(self):
         self.shared_key = generate_aes_key()
         self.initialization_vector = os.urandom(16)
+        self.salt = "Kevlar"
 
         self.algorithm = Cipher
         self.encryptor = Cipher(
             algorithms.AES(self.shared_key),
-            modes.GCM(default_initialization_vector),
+            modes.GCM(self.initialization_vector),
         ).encryptor()
 
         self.decryptor = Cipher(
             algorithms.AES(self.shared_key),
-            modes.GCM(default_initialization_vector),
+            modes.GCM(self.initialization_vector),
         ).decryptor()
 
     def encrypt(self, data):
@@ -49,7 +46,7 @@ class SymmetricService:
         :param data: The data to encrypt.
         :return: The encrypted data.
         """
-        self.encryptor.authenticate_additional_data(default_salt)
+        self.encryptor.authenticate_additional_data(self.salt)
         return self.encryptor.update(data) + self.encryptor.finalize()
 
     def decrypt(self, data):
@@ -58,7 +55,7 @@ class SymmetricService:
         :param data: The data to decrypt.
         :return: The decrypted data.
         """
-        self.decryptor.authenticate_additional_data(default_salt)
+        self.decryptor.authenticate_additional_data(self.salt)
         return self.decryptor.update(data) + self.decryptor.finalize()
 
 
@@ -69,7 +66,6 @@ def hmac(database: str, validation_key: str):
     :param validation_key: The validation key.
     :return: The signature.
     """
-
     hasher = hmac.HMAC(bytes(validation_key, "utf-8"), hashes.SHA256())
     hasher.update(bytes(database, "utf-8"))
     return to_base64(hasher.finalize())

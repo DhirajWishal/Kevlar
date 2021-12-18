@@ -109,7 +109,7 @@ class Server(BaseHTTPRequestHandler):
             hmac = ""
             user_validation_key = ""
 
-            # Walk through the xml tree and get the required infromation.
+            # Walk through the xml tree and get the required information.
             for element in xml_parser.tree.getroot():
                 if element.tag == "username":
                     username = element.text
