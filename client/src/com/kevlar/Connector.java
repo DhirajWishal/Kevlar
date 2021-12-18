@@ -94,7 +94,7 @@ public class Connector {
         Sender sender = new Sender(EcryptedData, true);
     }
 
-    public void sendDataToServer(String userName, String password) {
+    public Integer sendDataToServer(String userName, String password) {
         String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         sendData += "<kevlar mode=\"login\">";
         sendData += "<username>" + userName + "</username>";
@@ -105,11 +105,11 @@ public class Connector {
         int responseLength = serverData.length();
         Document xmlDoc = convertStringToXMLDocument(serverData);
         NodeList kevlarDataByNode = xmlDoc.getElementsByTagName("kevlar");
-        String serverUserData = null;
-        String serverPassword = null;
-        String serverDatabase = null;
-        String serverHMac = null;
-        Boolean noDataChecker = false;
+        String serverUserData ="";
+        String serverPassword = "";
+        String serverDatabase = "";
+        String serverHMac = "";
+        int validationChecker = 4;
         for (int temp = 0; temp < kevlarDataByNode.getLength(); temp++) {
             Node kevlarNode = kevlarDataByNode.item(temp);
             if (kevlarNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -120,14 +120,18 @@ public class Connector {
                 serverDatabase = kevlarElement.getElementsByTagName("database").item(0).getTextContent();
                 serverHMac = kevlarElement.getElementsByTagName("hmac").item(0).getTextContent();
             }
-            if ((serverUserData == null) && (serverPassword == null) && (serverDatabase == null) && (serverHMac == null)) {
-                noDataChecker = true;
+            //returns0 if the data is not found in the server
+            if ((serverUserData == "") && (serverPassword == "") && (serverDatabase == "") && (serverHMac == "")) {
+                validationChecker = 0;
+            //returns 1 if the data is found on the server AND matches the user's credentials
+            } else if ((password.equals(serverPassword)) && (userName.equals(serverPassword))) {
+                validationChecker = 1;
+            //returns 2 if the password does not match with the server's password
+            } else if ((!password.equals(serverPassword)) && (userName.equals(serverPassword))) {
+                validationChecker = 2;
             }
-            if ((noDataChecker) && (password.equals(serverPassword))){
-
-            }
-
         }
+        return (validationChecker);
 
 
     }
