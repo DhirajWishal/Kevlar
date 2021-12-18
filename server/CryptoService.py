@@ -72,7 +72,7 @@ def hmac(database: str, validation_key: str):
 
     hasher = hmac.HMAC(bytes(validation_key, "utf-8"), hashes.SHA256())
     hasher.update(bytes(database, "utf-8"))
-    return hasher.finalize()
+    return to_base64(hasher.finalize())
 
 
 def to_base64(data):

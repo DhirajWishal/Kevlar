@@ -1,5 +1,6 @@
 from http.server import BaseHTTPRequestHandler
 
+import Account
 import CryptoService
 import Database
 import Packager
@@ -60,3 +61,40 @@ class Server(BaseHTTPRequestHandler):
 
             else:
                 self.write_data(self.packager.generate_account("", "", "", ""))
+
+        elif xml_parser.mode == "account":
+            username = ""
+            password = ""
+            database = ""
+            hmac = ""
+            user_validation_key = ""
+
+            for element in xml_parser.tree.getroot():
+                if element.tag == "username":
+                    username = element.text
+                elif element.tag == "password":
+                    password = element.text
+                elif element.tag == "database":
+                    database = element.text
+                elif element.tag == "hmac":
+                    hmac = element.text
+                elif element.tag == "validation":
+                    user_validation_key = element.text
+
+            if self.database.user_exist(username):
+                validation_key = self.database.get_validation_key(username)
+
+                if hmac == CryptoService.hmac(database, validation_key):
+                    self.database.update(Account.Account(username, password, validation_key, database))
+                    self.write_data(self.packager.generate_status("Successful"))
+
+                else:
+                    self.write_data(self.packager.generate_status("HMAC Error"))
+
+            else:
+                if user_validation_key == "":
+                    self.write_data(self.packager.generate_status("Empty validation key"))
+
+                else:
+                    self.database.insert(Account.Account(username, password, user_validation_key, database))
+                    self.write_data(self.packager.generate_status("Created user"))
