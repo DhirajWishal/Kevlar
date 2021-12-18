@@ -158,6 +158,8 @@ public class Application {
 		}
 		masterPassword = Hasher.getSHA256(masterPassword);
 
+		connector.sendDataToServer(userName,masterPassword);
+
 		//send username & password to raj to check if exists
 
 		/*
@@ -215,7 +217,7 @@ public class Application {
 		}
 		password= dbManager.getPassword(title);
 		if (password != null){
-
+			password=AES.decrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
 			System.out.println("Your Username: "+username);
 			System.out.println("Your Password: "+password);
 			//can use file here!!
