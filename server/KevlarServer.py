@@ -34,4 +34,8 @@ class Server(BaseHTTPRequestHandler):
             self.wfile.write(bytes(data_to_send, "utf-8"))
 
         elif xml_parser.mode == "login":
-            pass
+            for element in xml_parser.tree.getroot():
+                if element == "username":
+                    pass
+                elif element == "password":
+                    pass
