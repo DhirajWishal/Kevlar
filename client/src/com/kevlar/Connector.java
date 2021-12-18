@@ -43,7 +43,7 @@ public class Connector {
      * @throws Exception
      */
     public void getServerPublicKey() throws Exception {
-        Cipher decrypt = Cipher.getInstance("RSA");
+        Cipher decrypt = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
         decrypt.init(Cipher.DECRYPT_MODE, theKeys.getPrivate());
         // encryptedServerData gets the return data from handshakeWithServer()
         String encryptedServerData = handshakeWithServer();
@@ -61,10 +61,14 @@ public class Connector {
      * @return PublicXML which contains the XML of the public key
      */
     public String publicKeyToXML() {
-        String publicKey = String.valueOf(theKeys.getPublic());
+        String publicKey = new String(Base64.getMimeEncoder().encode(theKeys.getPublic().getEncoded()), StandardCharsets.UTF_8);
         String publicXML = "<?xml version=\"1.0\"encoding=\"UTF-8\"?>";
         publicXML += "<kevlar mode=\"handshake\">";
-        publicXML += "<public keysize=\"2048\">" + publicKey + "</public>";
+        publicXML += "<public keysize=\"2048\">"
+                + "-----BEGIN RSA PRIVATE KEY-----\n"
+                + publicKey
+                + "\n-----END RSA PRIVATE KEY-----"
+                + "</public>";
         publicXML += "</kevlar>";
         return (publicXML);
     }
