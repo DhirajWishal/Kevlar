@@ -29,6 +29,7 @@ public class Connector {
     public Connector() throws Exception {
     }
 
+
     /**
      * Takes the userInput and converts them to the XML format
      *
@@ -75,6 +76,8 @@ public class Connector {
         Sender sender = new Sender(connectionXML, false);
         String response = sender.getResponse();
         System.out.println(response);
+    }
+    public void stringToSecretKey(String Key){
     }
 
     public void encryptData(String userName, String password, File database, String hMac, String serverAESKey, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException,
