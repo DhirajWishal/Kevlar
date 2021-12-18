@@ -15,8 +15,11 @@ import java.util.Scanner;
 // Specify the filename
 
 public class DatabaseManager {
+    /**
+     * This function creates a connection between the SQL database and the client
+     */
     private Connection sqlConnect() {
-        // SQLite connection string
+        // Connects to the "userData.bb" File
         String url = "jdbc:sqlite:userData.db";
         Connection sqlConnector = null;
         try {
@@ -27,6 +30,9 @@ public class DatabaseManager {
         return sqlConnector;
     }
 
+    /**
+     * This function creates the database using SQL for the tables to exist
+     */
     public void createDatabase() {
         Connection connection = this.sqlConnect();
         try {
@@ -49,10 +55,13 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * This function creates the SQL table within the SQL database using SQL statements
+     */
     public void createTable() {
         String url = "jdbc:sqlite:userData.db";
 
-        // SQL statement for creating a new table
+        // SQL statement for creating a new table with the name kevlarData
         String createSQL = "CREATE TABLE IF NOT EXISTS kevlarData (\n"
                 + "	Title text PRIMARY KEY,\n"
                 + "	UserName text NOT NULL,\n"
@@ -70,11 +79,20 @@ public class DatabaseManager {
 
     }
 
+    /**
+     * This function INSERTS data into the SQL table using the input from the user as parameters
+     * @param Title User's Title (The primary key of the table eg:- Google , Email , Discord etc..)
+     * @param userName User's Username to each of the corresponding Titles
+     * @param description A small description containing a hint of the password
+     * @param password User's Password for the certain Title
+     */
     public void insertData(String Title, String userName, String description, String password) {
+        //The SQL statement
         String sql = "INSERT INTO kevlarData(Title,userName,description,password) VALUES(?,?,?,?)";
         try {
             Connection connection = this.sqlConnect();
             PreparedStatement satement = connection.prepareStatement(sql);
+            //Adding the data in the order of how the SQL database was created
             satement.setString(1, Title);
             satement.setString(2, userName);
             satement.setString(3, description);
@@ -88,6 +106,9 @@ public class DatabaseManager {
 
     }
 
+    /**
+     * A custom function to extract the all the titles and descriptions  from the SQL
+     */
     public void getTitleDescription() {
         String sqlQuery = "SELECT Title,description FROM kevlarData";
         try (Connection connection = this.sqlConnect();
@@ -105,14 +126,21 @@ public class DatabaseManager {
 
     }
 
+    /**
+     * This function will get the user's Title and return the specific password
+     * @param userTitle The user's desired Title to get the password from
+     * @return The corresponding Password
+     */
     public String getPassword(String userTitle) {
         String password = null;
+        //The SQL statement
         String sqlQuery = "SELECT password FROM kevlarData " +
                 "WHERE Title=\"" + userTitle + "\"";
+        //Connects to the SQL
         try (Connection connection = this.sqlConnect();
              Statement statement = connection.createStatement();
              ResultSet results = statement.executeQuery(sqlQuery)) {
-
+            //Condition to output the specifc password
             if (results.next()) {
                 password = results.getString("password");
 
@@ -125,7 +153,13 @@ public class DatabaseManager {
         return (password);
     }
 
+    /**
+     * This function is to get the username from the title and output the username
+     * @param userTitle User's input for the Title
+     * @return The username
+     */
     public String getUserName(String userTitle) {
+        //SQL statment
         String sqlQuery = "SELECT userName FROM kevlarData " +
                 "WHERE Title=\"" + userTitle + "\"";
         String userName = null;
@@ -144,18 +178,31 @@ public class DatabaseManager {
         return (userName);
     }
 
-
+    /**
+     * This fucntion takes the "userData.db" File and turns the whole file into a H mac format
+     * @param validation User's Validation key
+     * @return The base64 encoded File
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     */
     public static String getHmac(String validation) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+        //Reads the file
         File databsaeFile = new File("userData.db");
-        Scanner myReader = new Scanner(databsaeFile);
+        //Converts the file to Byte[] Data type
         byte[] content = Files.readAllBytes(Paths.get("userData.db"));
+        //Generates a Key using the validation Key
         SecretKeySpec secretKeySpec = new SecretKeySpec(validation.getBytes(), "SHA-256");
+        //Using SHA-256
         Mac mac = Mac.getInstance("SHA-256");
         mac.init(secretKeySpec);
+        //byteHmac is given the final value of the H Mac
         byte[] byteHmac = mac.doFinal(content);
+        //Encodes the bytes into the String and returns it
         String finalHMACKey = Base64.getEncoder().encodeToString(byteHmac);
         return finalHMACKey;
     }
+
 
     public static String base64TheFile() throws IOException {
         File dataBaseFile = new File("userData.db");
