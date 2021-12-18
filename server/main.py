@@ -1,4 +1,5 @@
 # Python 3 server example
+import ssl
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import Account
@@ -33,6 +34,7 @@ class MyServer(BaseHTTPRequestHandler):
     def handle_request(self, data: bytes):
         is_encrypted = int(self.headers['Encrypted'])
         decrypted_data = CryptoService.from_base64(data)
+        print(decrypted_data)
         xml_parser = XMLParser.XMLParser(decrypted_data)
 
         if xml_parser.mode == "handshake":
@@ -51,6 +53,11 @@ class MyServer(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     webServer = HTTPServer((hostName, serverPort), MyServer)
+    webServer.socket = ssl.wrap_socket(webServer.socket,
+                                       server_side=True,
+                                       certfile='creds/cert.pem',
+                                       keyfile='creds/key.pem',
+                                       ssl_version=ssl.PROTOCOL_TLS)
 
     try:
         webServer.serve_forever()

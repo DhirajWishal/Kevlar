@@ -1,9 +1,12 @@
 package com.kevlar;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
+import java.security.spec.MGF1ParameterSpec;
 import java.util.Base64;
 
 
@@ -44,7 +47,8 @@ public class Connector {
      */
     public void getServerPublicKey() throws Exception {
         Cipher decrypt = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-        decrypt.init(Cipher.DECRYPT_MODE, theKeys.getPrivate());
+        decrypt.init(Cipher.DECRYPT_MODE, theKeys.getPrivate(), new OAEPParameterSpec("SHA-256",
+                "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT));
         // encryptedServerData gets the return data from handshakeWithServer()
         String encryptedServerData = handshakeWithServer();
         // decodedServerPublicKey is used to store and hold the base64 decoded data
@@ -52,6 +56,7 @@ public class Connector {
         //decryptedPublicKey holds the decrypted data after which decodedServerPublicKey is decrypted using clients privateKey using RSA algorithm
         byte[] decryptedPublicKey = decrypt.doFinal(decodedServerPublicKey);
         String serverPublicKey = new String(decryptedPublicKey, StandardCharsets.UTF_8);
+        System.out.println(serverPublicKey);
     }
 
 
@@ -62,7 +67,7 @@ public class Connector {
      */
     public String publicKeyToXML() {
         String publicKey = new String(Base64.getMimeEncoder().encode(theKeys.getPublic().getEncoded()), StandardCharsets.UTF_8);
-        String publicXML = "<?xml version=\"1.0\"encoding=\"UTF-8\"?>";
+        String publicXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         publicXML += "<kevlar mode=\"handshake\">";
         publicXML += "<public keysize=\"2048\">"
                 + "-----BEGIN RSA PRIVATE KEY-----\n"

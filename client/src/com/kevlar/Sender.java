@@ -1,7 +1,9 @@
 package com.kevlar;
 
+import javax.net.ssl.*;
 import java.io.*;
 import java.net.*;
+import java.security.GeneralSecurityException;
 
 public class Sender {
     private String head;
@@ -16,15 +18,30 @@ public class Sender {
      * This will create a new socket and will send a http request to the server.
      *
      * @param xml       The xml data to send.
-     * @param encrypted Whether or not the data is encrypted.
-     * @throws MalformedURLException This constructor can throw a Malformed URL Exception.
+     * @param encrypted Whether the data is encrypted.
      */
-    public Sender(String xml, boolean encrypted) throws MalformedURLException {
-        URL url = new URL("http://localhost");
-        try (Socket socket = new Socket(url.getHost(), 2255)) {
+    public Sender(String xml, boolean encrypted) {
+        try {
+            // Create the trust manager.
+            TrustManager[] trustManager = new TrustManager[]{new TrustManager()};
+
+            // Set up the ssl context.
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, trustManager, new java.security.SecureRandom());
+
+            // Create the ssl socket for communication.
+            URL url = new URL("https://localhost");
+            SSLSocketFactory factory = context.getSocketFactory();
+            SSLSocket socket = (SSLSocket) factory.createSocket(url.getHost(), 2255);
+
+            // Start the handshake and set up the security attributes.
+            socket.startHandshake();
+
+            // Set up the output stream.
             OutputStream output = socket.getOutputStream();
             PrintWriter writer = new PrintWriter(output, true);
 
+            // Write the http content.
             writer.println("POST / HTTP/1.1");
             writer.println("Host: " + url.getHost());
             writer.println("Encrypted: " + ((encrypted) ? "1" : "0"));
@@ -33,12 +50,12 @@ public class Sender {
             writer.println();
             writer.println(xml);
 
-            //socket is an instance of Socket
+            // Get the input stream from the socket.
             InputStream input = socket.getInputStream();
             InputStreamReader inputReader = new InputStreamReader(input);
             BufferedReader bufferedReader = new BufferedReader(inputReader);
 
-            //code to read and print headers
+            // Read and print headers
             head = bufferedReader.readLine();
             server = bufferedReader.readLine();
             date = bufferedReader.readLine();
@@ -46,15 +63,13 @@ public class Sender {
             length = bufferedReader.readLine();
             bufferedReader.readLine();
 
-            //code to read the post payload data
+            // Read the post payload data
             StringBuilder payload = new StringBuilder();
             while (bufferedReader.ready())
                 payload.append((char) bufferedReader.read());
             response = payload.toString();
-        } catch (UnknownHostException ex) {
-            System.out.println("Server not found!");
-        } catch (IOException ex) {
-            System.out.println("I/O error!");
+        } catch (IOException | GeneralSecurityException ex) {
+            ex.printStackTrace();
         }
     }
 
