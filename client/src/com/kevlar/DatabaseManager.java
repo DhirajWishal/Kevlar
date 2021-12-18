@@ -158,8 +158,8 @@ public class DatabaseManager {
     }
 
     public static String base64TheFile() throws IOException {
-        File dataBsaeFile = new File("userData.db");
-        byte[] databaseFileBytes = Files.readAllBytes(Paths.get(String.valueOf(dataBsaeFile)));
+        File dataBaseFile = new File("userData.db");
+        byte[] databaseFileBytes = Files.readAllBytes(Paths.get(String.valueOf(dataBaseFile)));
         String base64File = Base64.getEncoder().encodeToString(databaseFileBytes);
         return base64File;
     }

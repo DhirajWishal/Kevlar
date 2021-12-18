@@ -1,11 +1,20 @@
 package com.kevlar;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
 import javax.crypto.Cipher;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.security.*;
 import java.util.Base64;
 
@@ -38,6 +47,7 @@ public class Connector {
         userDataXML += "</kevlar>";
         return userDataXML;
     }
+
     public String newUserDataToXML(String userName, String password, String validationKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         String encodedDatabase = base64TheFile();
         String userDataXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
@@ -93,7 +103,46 @@ public class Connector {
         Sender sender = new Sender(sendData, true);
         String serverData = sender.getResponse();
         int responseLength = serverData.length();
+        Document xmlDoc = convertStringToXMLDocument(serverData);
+        NodeList kevlarDataByNode = xmlDoc.getElementsByTagName("kevlar");
+        for (int temp = 0; temp < kevlarDataByNode.getLength(); temp++) {
+            Node kevlarNode = kevlarDataByNode.item(temp);
+            if (kevlarNode.getNodeType() == Node.ELEMENT_NODE) {
 
+                Element kevlarElement = (Element) kevlarNode;
+                String id = kevlarElement.getAttribute("id");
+
+                // get text
+                String serverUserData = kevlarElement.getElementsByTagName("username").item(0).getTextContent();
+                String serverPassword = kevlarElement.getElementsByTagName("password").item(0).getTextContent();
+                String serverDatabase = kevlarElement.getElementsByTagName("database").item(0).getTextContent();
+                String serverHMac = kevlarElement.getElementsByTagName("hmac").item(0).getTextContent();
+
+            }
+        }
+
+
+
+    }
+
+    //Reference https://howtodoinjava.com/java/xml/parse-string-to-xml-dom/
+    private static Document convertStringToXMLDocument(String xmlString) {
+        //Parser that produces DOM object trees from XML content
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+        //API to obtain DOM Document instance
+        DocumentBuilder builder = null;
+        try {
+            //Create DocumentBuilder with default configuration
+            builder = factory.newDocumentBuilder();
+
+            //Parse the content to Document object
+            Document doc = builder.parse(new InputSource(new StringReader(xmlString)));
+            return doc;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }
