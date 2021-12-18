@@ -71,7 +71,7 @@ public class DatabaseManager {
     }
 
     public void insertData(String Title, String userName, String description, String password) {
-        String sql = "INSERT INTO kevlarData(Title,userName,description,password) VALUES(?,?)";
+        String sql = "INSERT INTO kevlarData(Title,userName,description,password) VALUES(?,?,?,?)";
         try {
             Connection connection = this.sqlConnect();
             PreparedStatement satement = connection.prepareStatement(sql);
@@ -81,7 +81,7 @@ public class DatabaseManager {
             satement.setString(4, password);
             satement.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println(Title + " password already exists!!");
         }
 
         DatabaseManager inserter = new DatabaseManager();
@@ -107,8 +107,8 @@ public class DatabaseManager {
 
     public String getPassword(String userTitle) {
         String password = null;
-        String sqlQuery = "SELECT password FROM kevlarData" +
-                "WHERE Title=" + userTitle;
+        String sqlQuery = "SELECT password FROM kevlarData " +
+                "WHERE Title=\"" + userTitle + "\"";
         try (Connection connection = this.sqlConnect();
              Statement statement = connection.createStatement();
              ResultSet results = statement.executeQuery(sqlQuery)) {
@@ -127,8 +127,8 @@ public class DatabaseManager {
     }
 
     public String getUserName(String userTitle) {
-        String sqlQuery = "SELECT userName FROM kevlarData" +
-                "WHERE Title=" + userTitle;
+        String sqlQuery = "SELECT userName FROM kevlarData " +
+                "WHERE Title=\"" + userTitle + "\"" ;
         String userName = null;
         try (Connection connection = this.sqlConnect();
              Statement statement = connection.createStatement();
@@ -166,8 +166,18 @@ public class DatabaseManager {
         return base64File;
     }
 
-    public void sendDataToServer(String userName,String password) {
+    public void checkForPassword(String title,String password){
 
+    }
+
+    public void sendDataToServer(String userName,String password) {
+        String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+        sendData += "<kevlar mode=\"account\">";
+        sendData += "<kevlar mode=\"login\">";
+        sendData += "<username>" + userName + "</username>";
+        sendData += "<password>" + password + "</password>>";
+        sendData += "</kevlar>";
+        Sender sender = new Sender(sendData);
 
     }
 

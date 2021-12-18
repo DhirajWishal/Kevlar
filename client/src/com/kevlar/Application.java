@@ -60,10 +60,9 @@ public class Application {
 	 */
 	public void functionality() {
 		boolean bShouldRun = true;
-		dbManager.createDatabase();
-		dbManager.createTable();
-		dbManager.getTitleDescription();
+
 		while (bShouldRun) {
+			dbManager.getTitleDescription();
 			printFunctionalMenu();
 			switch (getCommand()) {
 				case 1:
@@ -143,7 +142,7 @@ public class Application {
 
 		printSeparator();
 
-		//username & password send to thools have a while loop to get correct values
+
 		System.out.println("\nEnter your Username: ");
 		userName = scanner.nextLine();
 		while (userName.length() < 5 || userName.length() > 30) {
@@ -158,6 +157,8 @@ public class Application {
 			masterPassword = scanner.nextLine();
 		}
 		masterPassword = Hasher.getSHA256(masterPassword);
+
+		//send username & password to raj to check if exists
 
 		/*
 		System.out.println("\nEnter Validation key: ");
@@ -187,7 +188,11 @@ public class Application {
 		masterPassword=ValidatePassword.validate("Master Password");
 		System.out.println("\nA validation key is required to further the integrity of your password..");
 		validationKey=ValidatePassword.validate("Validation key");
+		masterPassword=Hasher.getSHA256(masterPassword);
 		userAccount = new UserAccount(userName,masterPassword,validationKey);
+
+		dbManager.createDatabase();
+		dbManager.createTable();
 		functionality();
 	}
 
@@ -203,14 +208,14 @@ public class Application {
 		System.out.println("Which account password would you like to view?");
 		title=scanner.nextLine();
 		username=dbManager.getUserName(title);
-		while (username == null && title != "-1"){
+		while (username == null && title.equals("-1")){
 			System.out.println("Please enter an appropriate account title(-1 to exit)");
 			title=scanner.nextLine();
 			username=dbManager.getUserName(title);
 		}
 		password= dbManager.getPassword(title);
 		if (password != null){
-			password=AES.decrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
+
 			System.out.println("Your Username: "+username);
 			System.out.println("Your Password: "+password);
 			//can use file here!!

@@ -17,7 +17,7 @@ public class Sender {
      * Constructor.
      * This will create a new socket and will send a http request to the server.
      *
-     * @param xml       The xml data to send.
+     * @param xml      The xml data to send.
      */
     public Sender(String xml) {
         try {
