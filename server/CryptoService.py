@@ -31,13 +31,15 @@ class SymmetricService:
 
         self.algorithm = Cipher
         self.encryptor = Cipher(
-            algorithms.AES(self.shared_key, ),
+            algorithms.AES(self.shared_key),
             modes.GCM(self.initialization_vector),
         ).encryptor()
 
+        self.encryptor.finalize()
+
         self.decryptor = Cipher(
             algorithms.AES(self.shared_key),
-            modes.GCM(self.initialization_vector, self.encryptor.tag),
+            modes.CBC(self.initialization_vector),
         ).decryptor()
 
     def encrypt(self, data: bytes):
