@@ -1,6 +1,6 @@
 import base64
 
-from cryptography.hazmat.primitives import hashes, hmac
+from cryptography.hazmat.primitives import hashes, hmac, padding
 from cryptography.hazmat.primitives.ciphers import (
     Cipher, algorithms, modes
 )
@@ -29,27 +29,20 @@ class SymmetricService:
         self.initialization_vector = os.urandom(16)
         self.salt = b"Kevlar"
 
-        self.algorithm = Cipher
-        self.encryptor = Cipher(
-            algorithms.AES(self.shared_key),
-            modes.GCM(self.initialization_vector),
-        ).encryptor()
-
-        self.encryptor.finalize()
-
-        self.decryptor = Cipher(
-            algorithms.AES(self.shared_key),
-            modes.CBC(self.initialization_vector),
-        ).decryptor()
-
     def encrypt(self, data: bytes):
         """
         Encrypt a block of data.
         :param data: The data to encrypt.
         :return: The encrypted data.
         """
-        self.encryptor.authenticate_additional_data(self.salt)
-        return self.encryptor.update(data) + self.encryptor.finalize()
+        padder = padding.PKCS7(algorithms.AES.block_size).padder()
+        data = padder.update(data) + padder.finalize()
+
+        encryptor = Cipher(
+            algorithms.AES(self.shared_key),
+            modes.CBC(self.initialization_vector),
+        ).encryptor()
+        return encryptor.update(data) + encryptor.finalize()
 
     def decrypt(self, data: bytes):
         """
@@ -57,8 +50,11 @@ class SymmetricService:
         :param data: The data to decrypt.
         :return: The decrypted data.
         """
-        self.decryptor.authenticate_additional_data(self.salt)
-        return self.decryptor.update(data) + self.decryptor.finalize()
+        decryptor = Cipher(
+            algorithms.AES(self.shared_key),
+            modes.CBC(self.initialization_vector),
+        ).decryptor()
+        return decryptor.update(data) + decryptor.finalize()
 
 
 def hmac(database: str, validation_key: str):

@@ -15,6 +15,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Base64;
 
@@ -36,10 +37,11 @@ public class Connector {
      * @param userName User's Username
      * @param password User's password
      */
-    private String key="";
+    private String key = "";
     private byte[] decodedAES;
     private SecretKey aesKey;
     private IvParameterSpec initializationVectorSpec;
+
     public String userDataToXML(String userName, String password, String validationKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         String encodedDatabase = base64TheFile();
         String hMac = getHmac(validationKey);
@@ -91,10 +93,10 @@ public class Connector {
             //ivData[i - 1] = (byte) Integer.parseInt(payload[i].strip());
             ivData[i - 1] = 0;
 
-         key = payload[0];
-         initializationVectorSpec = new IvParameterSpec(ivData);
-        byte[] byteAES=key.getBytes();
-        byte[] decodedAES=Base64.getDecoder().decode(byteAES);
+        key = payload[0];
+        initializationVectorSpec = new IvParameterSpec(ivData);
+        byte[] byteAES = key.getBytes();
+        byte[] decodedAES = Base64.getDecoder().decode(byteAES);
         aesKey = new SecretKeySpec(decodedAES, 0, decodedAES.length, "AES");
     }
 
@@ -116,14 +118,11 @@ public class Connector {
         String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         sendData += "<kevlar mode=\"login\">";
         sendData += "<username>" + userName + "</username>";
-        sendData += "<password>" + password + "</password>>";
+        sendData += "<password>" + password + "</password>";
         sendData += "</kevlar>";
-        byte[] byteData=sendData.getBytes();
-        Cipher cipherMethod = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipherMethod.init(Cipher.ENCRYPT_MODE, aesKey, initializationVectorSpec);
-        byte[] bytesToSend=cipherMethod.doFinal(byteData);
-        String finalData  = Base64.getEncoder().encodeToString(bytesToSend);
-        System.out.println("final data"+" "+finalData);
+        byte[] bytesToSend = encryptAES(sendData);
+        String finalData = Base64.getMimeEncoder().encodeToString(bytesToSend);
+        System.out.println("final data" + " " + finalData);
         Sender sender = new Sender(finalData, true);
         String serverData = sender.getResponse();
         int responseLength = serverData.length();
@@ -148,10 +147,10 @@ public class Connector {
             if ((serverUserData == "") && (serverPassword == "") && (serverDatabase == "") && (serverHMac == "")) {
                 validationChecker = 0;
 
-            //returns 1 if the data is found on the server AND matches the user's credentials
+                //returns 1 if the data is found on the server AND matches the user's credentials
             } else if ((password.equals(serverPassword)) && (userName.equals(serverUserData))) {
                 validationChecker = 1;
-            //returns 2 if the password does not match with the server's password
+                //returns 2 if the password does not match with the server's password
             } else if ((!password.equals(serverPassword)) && (userName.equals(serverUserData))) {
 
                 validationChecker = 2;
@@ -161,6 +160,17 @@ public class Connector {
 
 
     }
+
+    private byte[] encryptAES(String data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        Cipher cipherMethod = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipherMethod.init(Cipher.ENCRYPT_MODE, aesKey, initializationVectorSpec);
+
+        for (int i = 0; i < data.length() % 256; i++)
+            data = ((byte) 0) + data;
+
+        return cipherMethod.doFinal(data.getBytes(StandardCharsets.UTF_8));
+    }
+
 
     //Reference https://howtodoinjava.com/java/xml/parse-string-to-xml-dom/
     private static Document convertStringToXMLDocument(String xmlString) {
