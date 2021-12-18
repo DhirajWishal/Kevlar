@@ -23,6 +23,7 @@ public class Application {
 	 */
 	public Application() throws Exception {
 		System.out.println("Welcome to Kevlar!");
+		connector.setupConnection();
 	}
 	
 	/**
@@ -157,8 +158,12 @@ public class Application {
 	/**
 	 * Login to the kevlar system.
 	 */
+
 	private void login() throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
-		String masterPassword,userName,base64un,base64mp,base64vk;
+		String masterPassword,userName,base64un,base64mp,base64vk,exit="",thulana;
+		Integer checker;
+		boolean bverify;
+
 
 		printSeparator();
 
@@ -180,28 +185,27 @@ public class Application {
 
 		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
 		base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
-		connector.sendDataToServer(base64un,base64mp);
+		checker=connector.sendDataToServer(base64un,base64mp);
 
-		/**
-		 * check if username and password exists
-		 */
+		bverify=verifyLogin(checker,userName,masterPassword);
 
+		if(bverify==true) {
+			System.out.println("\nEnter Validation key: ");
+			String validationKey = scanner.nextLine();
+			while (validationKey.length() < 8 || validationKey.length() > 30) {
+				System.out.println("\nPlease enter a Validation key between 8 and 30 characters: ");
+				validationKey = scanner.nextLine();
+			}
+			validationKey = Hasher.getSHA256(validationKey);
+			userAccount = new UserAccount(userName, masterPassword, validationKey);
 
-		System.out.println("\nEnter Validation key: ");
-		String validationKey = scanner.nextLine();
-		while (validationKey.length() < 8 || validationKey.length() > 30) {
-			System.out.println("\nPlease enter a Validation key between 8 and 30 characters: ");
-			validationKey = scanner.nextLine();
-		}
-		validationKey = Hasher.getSHA256(validationKey);
-		userAccount = new UserAccount(userName,masterPassword,validationKey);
+			base64vk = Base64.getEncoder().encodeToString(validationKey.getBytes());
 
-		base64vk= Base64.getEncoder().encodeToString(validationKey.getBytes());
-
-		try {
-			connector.userDataToXML(base64un, base64mp, base64vk);
-		}catch(IOException | NoSuchAlgorithmException | InvalidKeyException e){
-			System.out.println(e.getMessage());
+			try {
+				thulana=connector.userDataToXML(base64un, base64mp, base64vk);
+			} catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
+				System.out.println(e.getMessage());
+			}
 		}
 
 	}
@@ -346,7 +350,64 @@ public class Application {
 			System.out.println("Password change failed invalid account name");
 		}
 	}
-	
+
+	/**
+	 * verify password and username
+	 */
+	public boolean verifyLogin(Integer checker,String userName,String masterPassword) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+		String base64un,base64mp,leaver;
+
+		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
+		base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
+		while(true){
+			switch (checker){
+				case 0:
+					System.out.println("Do you wish to create a new Account instead?(Yes/No/Y/N)");
+					leaver=scanner.nextLine();
+					if(leaver.equalsIgnoreCase("yes") || leaver.equalsIgnoreCase("y")){
+						return false;
+					}
+					System.out.println("\nEnter your Username: ");
+					userName = scanner.nextLine();
+					while (userName.length() < 5 || userName.length() > 30) {
+						System.out.println("\nPlease enter a Username between 5 and 30 characters: ");
+						userName = scanner.nextLine();
+					}
+
+					System.out.println("\nEnter Master Password: ");
+					masterPassword = scanner.nextLine();
+					while (masterPassword.length() < 8 || masterPassword.length() > 30) {
+						System.out.println("\nPlease enter a Master Password between 8 and 30 characters: ");
+						masterPassword = scanner.nextLine();
+					}
+					masterPassword = Hasher.getSHA256(masterPassword);
+
+					base64un= Base64.getEncoder().encodeToString(userName.getBytes());
+					base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
+					checker=connector.sendDataToServer(base64un,base64mp);
+					break;
+				case 2:
+					System.out.println("Do you wish to create a new Account instead?(Yes/No/Y/N)");
+					leaver=scanner.nextLine();
+					if(leaver.equalsIgnoreCase("yes") || leaver.equalsIgnoreCase("y")){
+						return false;
+					}
+					System.out.println("\nInvalid password entered please Re-enter password!");
+					masterPassword=scanner.nextLine();
+					masterPassword = Hasher.getSHA256(masterPassword);
+					base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
+					checker=connector.sendDataToServer(base64un,base64mp);
+					break;
+				case 1:
+					userAccount = new UserAccount(userName,masterPassword,"empty");
+					return true;
+				default:
+					checker=0;
+
+
+			}
+		}
+	}
 
 	/**
 	 * Final function to cleanup the application upon exit.
