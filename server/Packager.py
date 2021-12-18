@@ -22,3 +22,19 @@ class Packager:
         document += f"<key>{key}</key>"
         document += f"<iv>{iv_array}</iv>"
         return document + self.end_root
+
+    def generate_account(self, username: str, password: str, database: str, hmac: str):
+        """
+        Generate account document by using the upload-able data.
+        :param username: The account username.
+        :param password: The account password.
+        :param database: The account database.
+        :param hmac: The authentication hmac of the database.
+        :return: The xml document.
+        """
+        document = self.xml_version + self.begin_root
+        document += f"<username>{username}</username>"
+        document += f"<password>{password}</password>"
+        document += f"<database>{database}</database>"
+        document += f"<hmac>{hmac}</hmac>"
+        return document + self.end_root

@@ -11,6 +11,11 @@ class Server(BaseHTTPRequestHandler):
     packager = Packager.Packager()
     crypto = CryptoService.SymmetricService()
 
+    def write_data(self, data: str):
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(bytes(data, "utf-8"))
+
     def do_GET(self):
         self.send_response(200)
         self.send_header("Content-type", "text/xml")
@@ -29,9 +34,28 @@ class Server(BaseHTTPRequestHandler):
         if xml_parser.mode == "handshake":
             data_to_send: str = self.packager.generate_handshake(CryptoService.to_base64(self.crypto.shared_key),
                                                                  self.crypto.initialization_vector)
-            self.send_header("Content-Length", str(len(data_to_send)))
-            self.end_headers()
-            self.wfile.write(bytes(data_to_send, "utf-8"))
+            self.write_data(data_to_send)
 
         elif xml_parser.mode == "login":
-            pass
+            username = ""
+            password = ""
+            for element in xml_parser.tree.getroot():
+                if element.tag == "username":
+                    username = element.text
+                elif element.tag == "password":
+                    password = element.text
+
+            if self.database.user_exist(username):
+                database_password = self.database.get_password(username)
+                if database_password == password:
+                    database_database = self.database.get_database(username)
+                    validation_key = self.database.get_validation_key(username)
+                    self.write_data(self.packager.generate_account(username, database_password, database_database,
+                                                                   CryptoService.hmac(database_database,
+                                                                                      validation_key)))
+
+                else:
+                    self.write_data(self.packager.generate_account(username, "", "", ""))
+
+            else:
+                self.write_data(self.packager.generate_account("", "", "", ""))
