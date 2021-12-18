@@ -60,7 +60,9 @@ public class Application {
 	 */
 	public void functionality() {
 		boolean bShouldRun = true;
-		//dbManager.getTitleDescription();
+		dbManager.createDatabase();
+		dbManager.createTable();
+		dbManager.getTitleDescription();
 		while (bShouldRun) {
 			printFunctionalMenu();
 			switch (getCommand()) {
@@ -200,7 +202,7 @@ public class Application {
 		printSeparator();
 		System.out.println("Which account password would you like to view?");
 		title=scanner.nextLine();
-		/**username=dbManager.getUserName(title);
+		username=dbManager.getUserName(title);
 		while (username == null && title != "-1"){
 			System.out.println("Please enter an appropriate account title(-1 to exit)");
 			title=scanner.nextLine();
@@ -214,7 +216,7 @@ public class Application {
 			//can use file here!!
 		}else{
 			System.out.println("Exiting view password...");
-		}*/
+		}
 
 	}
 
@@ -227,13 +229,13 @@ public class Application {
 		printSeparator();
 		System.out.println("For what account will this Password be stored for?: ");
 		title= scanner.nextLine();
-		System.out.println("Add a small description (could be a hint to displayed alongside the prior entered title):  ");
+		System.out.println("Add a small description (could be a hint to be displayed alongside the prior entered title):  ");
 		description=scanner.nextLine();
 		System.out.println("What username did you use for this account?: ");
 		titleUsername= scanner.nextLine();
 		password=ValidatePassword.validate("Password");
 		password = AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
-		//dbManager.insertData(title,titleUsername,description,password);
+		dbManager.insertData(title,titleUsername,description,password);
 
 	}
 
