@@ -47,6 +47,7 @@ class Server(BaseHTTPRequestHandler):
 
             if self.database.user_exist(username):
                 database_password = self.database.get_password(username)
+
                 if database_password == password:
                     database_database = self.database.get_database(username)
                     validation_key = self.database.get_validation_key(username)

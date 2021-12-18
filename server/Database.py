@@ -76,7 +76,7 @@ class Database:
         for _ in self.connection.execute(f"""SELECT username FROM User WHERE username = '{username}'"""):
             return True
 
-        return True
+        return False
 
     def get_password(self, username):
         """
