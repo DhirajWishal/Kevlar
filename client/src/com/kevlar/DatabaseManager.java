@@ -167,7 +167,7 @@ public class DatabaseManager {
     }
 
     public Boolean checkForPassword(String title, String password) {
-        String sqlQuery = "SELECT userName FROM kevlarData " +
+        String sqlQuery = "SELECT password FROM kevlarData " +
                 "WHERE Title=\"" + title + "\"";
         Boolean validity = false;
         try (Connection connection = this.sqlConnect()) {
@@ -178,8 +178,6 @@ public class DatabaseManager {
                 if (databasePassword == password) {
                     validity = true;
                     return (validity);
-                } else {
-                    System.out.println("Password is not found within the database");
                 }
             }
         } catch (SQLException e) {
@@ -190,7 +188,7 @@ public class DatabaseManager {
 
     public void changePassword(String title, String newPassword) {
         String sqlQuery = "UPDATE kevlarData " +
-                "SET password=\""+newPassword+"\"" +
+                "SET password=\"" + newPassword + "\"" +
                 "WHERE Title=\"" + title + "\"";
 
         try (Connection connection = this.sqlConnect();
@@ -202,6 +200,25 @@ public class DatabaseManager {
             System.out.println(e.getMessage());
         }
 
+    }
+
+    public Boolean checkForTitle(String title) {
+        String sqlQuery = "SELECT Title FROM kevlarData";
+        Boolean validity = false;
+        try (Connection connection = this.sqlConnect()) {
+            Statement statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(sqlQuery);
+            while (results.next()) {
+                String databaseTitle = results.getString("Title");
+                if (databaseTitle == title) {
+                    validity = true;
+                    return (validity);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return validity;
     }
 
     public void deleteData() throws SQLException {
