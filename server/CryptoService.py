@@ -27,11 +27,11 @@ class SymmetricService:
     def __init__(self):
         self.shared_key = generate_aes_key()
         self.initialization_vector = os.urandom(16)
-        self.salt = "Kevlar"
+        self.salt = b"Kevlar"
 
         self.algorithm = Cipher
         self.encryptor = Cipher(
-            algorithms.AES(self.shared_key),
+            algorithms.AES(self.shared_key, ),
             modes.GCM(self.initialization_vector),
         ).encryptor()
 
@@ -40,7 +40,7 @@ class SymmetricService:
             modes.GCM(self.initialization_vector),
         ).decryptor()
 
-    def encrypt(self, data):
+    def encrypt(self, data: bytes):
         """
         Encrypt a block of data.
         :param data: The data to encrypt.
@@ -49,7 +49,7 @@ class SymmetricService:
         self.encryptor.authenticate_additional_data(self.salt)
         return self.encryptor.update(data) + self.encryptor.finalize()
 
-    def decrypt(self, data):
+    def decrypt(self, data: bytes):
         """
         Decrypt a block of data.
         :param data: The data to decrypt.

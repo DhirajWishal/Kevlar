@@ -20,7 +20,7 @@ class Server(BaseHTTPRequestHandler):
         :return: None.
         """
         if should_encrypt == 1:
-            data = self.crypto.encrypt(data)
+            data = self.crypto.encrypt(bytes(data, "utf-8"))
 
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()
