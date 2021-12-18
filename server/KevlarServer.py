@@ -13,30 +13,55 @@ class Server(BaseHTTPRequestHandler):
     crypto = CryptoService.SymmetricService()
 
     def write_data(self, data: str):
+        """
+        Write data to be passed to the response.
+        :param data: The data to write as a string.
+        :return: None.
+        """
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()
         self.wfile.write(bytes(data, "utf-8"))
 
     def do_GET(self):
+        """
+        Handle GET requests.
+        :return: None
+        """
         self.send_response(200)
         self.send_header("Content-type", "text/xml")
         self.end_headers()
         self.wfile.write(bytes("Boo Hoo no one uses GET to send sensitive data!", "utf-8"))
 
     def do_POST(self):
+        """
+        Handle POST requests.
+        :return: None
+        """
         self.send_response(200)
         self.send_header("Content-type", "text/xml")
         self.handle_request(self.rfile.read(int(self.headers['Content-Length'])))
 
     def handle_request(self, data: bytes):
+        """
+        Get the data and handle the request.
+        :param data: The request as bytes.
+        :return: None
+        """
         decrypted_data: str = data.decode("utf-8")
+        is_encrypted = int(self.headers["Encrypted:"])
+        if is_encrypted == 1:
+            data_to_decrypt = CryptoService.from_base64(decrypted_data)
+            decrypted_data = self.crypto.decrypt(data_to_decrypt)
+
         xml_parser = XMLParser.XMLParser(decrypted_data)
 
+        # Handle the handshake.
         if xml_parser.mode == "handshake":
             data_to_send: str = self.packager.generate_handshake(CryptoService.to_base64(self.crypto.shared_key),
                                                                  self.crypto.initialization_vector)
             self.write_data(data_to_send)
 
+        # Handle the login request.
         elif xml_parser.mode == "login":
             username = ""
             password = ""
@@ -62,6 +87,7 @@ class Server(BaseHTTPRequestHandler):
             else:
                 self.write_data(self.packager.generate_account("", "", "", ""))
 
+        # Handle the user account request.
         elif xml_parser.mode == "account":
             username = ""
             password = ""
