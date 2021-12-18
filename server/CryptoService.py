@@ -62,7 +62,7 @@ class SymmetricService:
         return self.decryptor.update(data) + self.decryptor.finalize()
 
 
-def hmac(database, validation_key):
+def hmac(database: str, validation_key: str):
     """
     Utility function to generate an authentication code using HMAC.
     :param database: The database data.
@@ -70,8 +70,8 @@ def hmac(database, validation_key):
     :return: The signature.
     """
 
-    hasher = hmac.HMAC(validation_key, hashes.SHA256())
-    hasher.update(database)
+    hasher = hmac.HMAC(bytes(validation_key, "utf-8"), hashes.SHA256())
+    hasher.update(bytes(database, "utf-8"))
     return hasher.finalize()
 
 

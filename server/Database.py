@@ -78,6 +78,42 @@ class Database:
 
         return True
 
+    def get_password(self, username):
+        """
+        Get the password from the database using the username.
+        :param username: The username of the user.
+        :return: The password. Returns a null string if it doesn't exist.
+        """
+
+        for row in self.connection.execute(f"""SELECT password FROM User WHERE username = '{username}'"""):
+            return row
+
+        return ""
+
+    def get_database(self, username):
+        """
+        Get the database entry from the database using the username.
+        :param username: The username of the user.
+        :return: The database. Returns a null string if it doesn't exist.
+        """
+
+        for row in self.connection.execute(f"""SELECT database FROM User WHERE username = '{username}'"""):
+            return row
+
+        return ""
+
+    def get_validation_key(self, username):
+        """
+        Get the validation key from the database using the username.
+        :param username: The username of the user.
+        :return: The validation key. Returns a null string if it doesn't exist.
+        """
+
+        for row in self.connection.execute(f"""SELECT validation FROM User WHERE username = '{username}'"""):
+            return row
+
+        return ""
+
     def show_content(self):
         """
         Display all the information stored in the user table.
