@@ -85,8 +85,6 @@ public class DatabaseManager {
         }
 
         DatabaseManager inserter = new DatabaseManager();
-        // insert three  rows
-        //inserter.insertData("test1", "test2", "test3", "test4");
 
     }
 
@@ -163,11 +161,26 @@ public class DatabaseManager {
 
     public static String base64TheFile() throws IOException {
         File dataBsaeFile = new File("userData.db");
-        byte[]  databaseFileBytes = Files.readAllBytes(Paths.get(String.valueOf(dataBsaeFile)));
-        String base64File=Base64.getEncoder().encodeToString(databaseFileBytes);
+        byte[] databaseFileBytes = Files.readAllBytes(Paths.get(String.valueOf(dataBsaeFile)));
+        String base64File = Base64.getEncoder().encodeToString(databaseFileBytes);
         return base64File;
+    }
+
+    public void checkForPassword(String title,String password){
 
     }
+
+    public void sendDataToServer(String userName,String password) {
+        String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+        sendData += "<kevlar mode=\"account\">";
+        sendData += "<kevlar mode=\"login\">";
+        sendData += "<username>" + userName + "</username>";
+        sendData += "<password>" + password + "</password>>";
+        sendData += "</kevlar>";
+        Sender sender = new Sender(sendData);
+
+    }
+
 
 
 }

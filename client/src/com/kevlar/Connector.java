@@ -51,7 +51,7 @@ public class Connector {
         String connectionXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         connectionXML += "<kevlar mode=\"handshake\">";
         connectionXML += "</kevlar>";
-        Sender sender = new Sender(connectionXML, false);
+        Sender sender = new Sender(connectionXML);
         String response = sender.getResponse();
         System.out.println(response);
     }
@@ -70,6 +70,6 @@ public class Connector {
         cipherMethod.init(Cipher.ENCRYPT_MODE, originalAESKey, iv);
         byte[] cipherData = cipherMethod.doFinal(userDataXML);
         String EcryptedData = Base64.getEncoder().encodeToString(cipherData);
-        Sender sender = new Sender(EcryptedData, true);
+        Sender sender = new Sender(EcryptedData);
     }
 }
