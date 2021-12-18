@@ -29,7 +29,7 @@ public class Connector {
     public String userDataToXML(String userName, String password, String validationKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         String encodedDatabase = base64TheFile();
         String hMac = getHmac(validationKey);
-        String userDataXML = "<?xml version=\"1.0\"encoding=\"UTF-8\"?>";
+        String userDataXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         userDataXML += "<kevlar mode=\"account\">";
         userDataXML += "<username>" + userName + "</username>";
         userDataXML += "<password>" + password + "</password>>";
@@ -45,6 +45,15 @@ public class Connector {
         byte[] iv = {(byte) 163, (byte) 127, (byte) 43, (byte) 227, 29, (byte) 181, (byte) 193, (byte) 101, (byte) 239, 2, (byte) 211, (byte) 149, (byte) 197, (byte) 37, (byte) 59, (byte) 83};
         new SecureRandom().nextBytes(iv);
         return new IvParameterSpec(iv);
+    }
+
+    public void setupConnection(){
+        String connectionXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+        connectionXML+= "<kevlar mode=\"handshake\">";
+        connectionXML+="</kevlar>";
+        Sender sender = new Sender(connectionXML,false);
+        String response = sender.getResponse();
+        System.out.println(response);
     }
 
     public void encryptData(String userName, String password, File database, String hMac, String serverAESKey, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException,
