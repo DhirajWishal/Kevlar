@@ -329,7 +329,6 @@ public class Application {
 				bexists = dbManager.checkForPassword(title, password);
 			}
 			if (!password.equals("-1")){
-				System.out.println("Enter in new password: ");
 				password=ValidatePassword.validate("new Password");
 				password=AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
 				dbManager.changePassword(title,password);

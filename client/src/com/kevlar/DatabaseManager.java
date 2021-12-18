@@ -224,7 +224,6 @@ public class DatabaseManager {
         try (Connection connection = this.sqlConnect()) {
             PreparedStatement statement = connection.prepareStatement(sqlQuery);
             statement.executeUpdate();
-            System.out.println("Sucessfully deleted");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
