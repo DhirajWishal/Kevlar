@@ -88,7 +88,8 @@ public class Connector {
         byte[] ivData = new byte[payload.length - 1];
 
         for (int i = 1; i < payload.length; ++i)
-            ivData[i - 1] = (byte) Integer.parseInt(payload[i].strip());
+            //ivData[i - 1] = (byte) Integer.parseInt(payload[i].strip());
+            ivData[i - 1] = 0;
 
          key = payload[0];
          initializationVectorSpec = new IvParameterSpec(ivData);
@@ -103,8 +104,8 @@ public class Connector {
         String userData = userDataToXML(userName, password, hMac);
         byte[] userDataXML = userData.getBytes();
         // rebuild key using SecretKeySpec
-        SecretKey originalAESKey = new SecretKeySpec(decodedAES, 0, decodedAES.length, "AES");
-        Cipher cipherMethod = Cipher.getInstance("AES");
+        SecretKey originalAESKey = new SecretKeySpec(decodedAES, 0, decodedAES.length, "AES/CBC/PKCS5Padding");
+        Cipher cipherMethod = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipherMethod.init(Cipher.ENCRYPT_MODE, originalAESKey, initializationVectorSpec);
         byte[] cipherData = cipherMethod.doFinal(userDataXML);
         String ecryptedData = Base64.getEncoder().encodeToString(cipherData);
@@ -118,7 +119,7 @@ public class Connector {
         sendData += "<password>" + password + "</password>>";
         sendData += "</kevlar>";
         byte[] byteData=sendData.getBytes();
-        Cipher cipherMethod = Cipher.getInstance("AES");
+        Cipher cipherMethod = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipherMethod.init(Cipher.ENCRYPT_MODE, aesKey, initializationVectorSpec);
         byte[] bytesToSend=cipherMethod.doFinal(byteData);
         String finalData  = Base64.getEncoder().encodeToString(bytesToSend);
