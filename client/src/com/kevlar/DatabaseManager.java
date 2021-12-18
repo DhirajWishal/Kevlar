@@ -71,7 +71,7 @@ public class DatabaseManager {
     }
 
     public void insertData(String Title, String userName, String description, String password) {
-        String sql = "INSERT INTO kevlarData(Title,userName,description,password) VALUES(?,?)";
+        String sql = "INSERT INTO kevlarData(Title,userName,description,password) VALUES(?,?,?,?)";
         try {
             Connection connection = this.sqlConnect();
             PreparedStatement satement = connection.prepareStatement(sql);
@@ -81,7 +81,7 @@ public class DatabaseManager {
             satement.setString(4, password);
             satement.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println(Title + " password already exists!!");
         }
 
         DatabaseManager inserter = new DatabaseManager();
@@ -109,8 +109,8 @@ public class DatabaseManager {
 
     public String getPassword(String userTitle) {
         String password = null;
-        String sqlQuery = "SELECT password FROM kevlarData" +
-                "WHERE Title=" + userTitle;
+        String sqlQuery = "SELECT password FROM kevlarData " +
+                "WHERE Title=\"" + userTitle + "\"";
         try (Connection connection = this.sqlConnect();
              Statement statement = connection.createStatement();
              ResultSet results = statement.executeQuery(sqlQuery)) {
@@ -129,8 +129,8 @@ public class DatabaseManager {
     }
 
     public String getUserName(String userTitle) {
-        String sqlQuery = "SELECT userName FROM kevlarData" +
-                "WHERE Title=" + userTitle;
+        String sqlQuery = "SELECT userName FROM kevlarData " +
+                "WHERE Title=\"" + userTitle + "\"" ;
         String userName = null;
         try (Connection connection = this.sqlConnect();
              Statement statement = connection.createStatement();
