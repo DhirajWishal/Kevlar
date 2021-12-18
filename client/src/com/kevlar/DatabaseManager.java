@@ -161,11 +161,16 @@ public class DatabaseManager {
 
     public static String base64TheFile() throws IOException {
         File dataBsaeFile = new File("userData.db");
-        byte[]  databaseFileBytes = Files.readAllBytes(Paths.get(String.valueOf(dataBsaeFile)));
-        String base64File=Base64.getEncoder().encodeToString(databaseFileBytes);
+        byte[] databaseFileBytes = Files.readAllBytes(Paths.get(String.valueOf(dataBsaeFile)));
+        String base64File = Base64.getEncoder().encodeToString(databaseFileBytes);
         return base64File;
+    }
+
+    public void sendDataToServer(String userName,String password) {
+
 
     }
+
 
 
 }
