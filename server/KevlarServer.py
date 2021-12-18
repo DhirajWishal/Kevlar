@@ -24,13 +24,14 @@ class Server(BaseHTTPRequestHandler):
 
     def handle_request(self, data: bytes):
         decrypted_data: str = data.decode("utf-8")
-        print(decrypted_data)
         xml_parser = XMLParser.XMLParser(decrypted_data)
 
         if xml_parser.mode == "handshake":
             data_to_send: str = self.packager.generate_handshake(CryptoService.to_base64(self.crypto.shared_key),
                                                                  self.crypto.initialization_vector)
-            print(data_to_send)
             self.send_header("Content-Length", str(len(data_to_send)))
             self.end_headers()
             self.wfile.write(bytes(data_to_send, "utf-8"))
+
+        elif xml_parser.mode == "login":
+            pass
