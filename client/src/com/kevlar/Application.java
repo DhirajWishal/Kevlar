@@ -197,10 +197,13 @@ public class Application {
 				validationKey = scanner.nextLine();
 			}
 			validationKey = Hasher.getSHA256(validationKey);
-			userAccount = new UserAccount(userName, masterPassword, validationKey);
+			userName=userAccount.getUserName();
+			masterPassword=userAccount.getMasterPassword();
 
+			userAccount=new UserAccount(userName,masterPassword,validationKey);
 			base64vk = Base64.getEncoder().encodeToString(validationKey.getBytes());
-
+			base64un= Base64.getEncoder().encodeToString(userName.getBytes());
+			base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
 			try {
 				thulana=connector.userDataToXML(base64un, base64mp, base64vk);
 			} catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {

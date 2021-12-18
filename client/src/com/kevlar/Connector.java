@@ -121,13 +121,10 @@ public class Connector {
         String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         sendData += "<kevlar mode=\"login\">";
         sendData += "<username>" + userName + "</username>";
-        sendData += "<password>" + password + "</password>>";
+        sendData += "<password>" + password + "</password>";
         sendData += "</kevlar>";
-        byte[] byteData = sendData.getBytes();
-        Cipher cipherMethod = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipherMethod.init(Cipher.ENCRYPT_MODE, aesKey, initializationVectorSpec);
-        byte[] bytesToSend = cipherMethod.doFinal(byteData);
-        String finalData = Base64.getEncoder().encodeToString(bytesToSend);
+        byte[] bytesToSend = encryptAES(sendData);
+        String finalData = Base64.getMimeEncoder().encodeToString(bytesToSend);
         System.out.println("final data" + " " + finalData);
         Sender sender = new Sender(finalData, true);
         String serverData = sender.getResponse();
@@ -179,6 +176,17 @@ public class Connector {
 
 
     }
+
+    private byte[] encryptAES(String data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        Cipher cipherMethod = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipherMethod.init(Cipher.ENCRYPT_MODE, aesKey, initializationVectorSpec);
+
+        for (int i = 0; i < data.length() % 256; i++)
+            data = ((byte) 0) + data;
+
+        return cipherMethod.doFinal(data.getBytes(StandardCharsets.UTF_8));
+    }
+
 
     //Reference https://howtodoinjava.com/java/xml/parse-string-to-xml-dom/
     private static Document convertStringToXMLDocument(String xmlString) {

@@ -55,7 +55,11 @@ class Server(BaseHTTPRequestHandler):
         is_encrypted = int(self.headers["Encrypted"])
         if is_encrypted == 1:
             data_to_decrypt = CryptoService.from_base64(decrypted_data)
-            decrypted_data = self.crypto.decrypt(data_to_decrypt)
+            decrypt = self.crypto.decrypt(data_to_decrypt)
+            decrypt = decrypt[decrypt.find(b'<?xml version='):]
+            decrypted_data = decrypt[:decrypt.find(b'</kevlar>') + 9]
+
+        print(decrypted_data)
 
         # Set up the xml parser to walk through the xml tree.
         xml_parser = XMLParser.XMLParser(decrypted_data)
