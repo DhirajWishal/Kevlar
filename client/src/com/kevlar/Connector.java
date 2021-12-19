@@ -67,11 +67,11 @@ public class Connector {
         return new IvParameterSpec(iv);
     }
 
-    public void sendExistingDataToServer(String userName, String password, File database, String hMac) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+    public void sendExistingDataToServer(String userName, String password ,String hMac) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         String userData = userDataToXML(userName, password, hMac);
         Sender sender = new Sender(userData);
     }
-    public void sendNewDataToServer(String userName, String password, File database,String validationKey) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+    public void sendNewDataToServer(String userName, String password,String validationKey) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         String userData = newUserDataToXML(userName, password, validationKey);
         Sender sender = new Sender(userData);
     }

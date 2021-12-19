@@ -34,7 +34,6 @@ public class DatabaseManager {
      * This function creates the SQL table within the SQL database using SQL statements
      */
     public void createTable() {
-
         // SQL statement for creating a new table with the name kevlarData
         String createSQL = "CREATE TABLE IF NOT EXISTS kevlarData (\n"
                 + "	Title text PRIMARY KEY,\n"
@@ -246,7 +245,7 @@ public class DatabaseManager {
     /**
      * This function will output all the titles stored in the Database
      *
-     * @param title
+     * @param title Title 
      * @return
      */
     public Boolean checkForTitle(String title) {
