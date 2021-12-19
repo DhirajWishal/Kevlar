@@ -148,9 +148,10 @@ public class Application {
 	 */
 
 	private void login() throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, IOException {
-		String masterPassword,userName,base64un,base64mp,base64vk,exit="";
+		String masterPassword,userName,base64un,base64mp,base64vk,exit="",validationKey;
 		Integer checker;
 		boolean bverify;
+		PasswordIO passwordIO = new PasswordIO();
 
 		printSeparator();
 
@@ -162,11 +163,7 @@ public class Application {
 		}
 
 		System.out.println("\nEnter Master Password: ");
-		masterPassword = scanner.nextLine();
-		while (masterPassword.length() < 8 || masterPassword.length() > 30) {
-			System.out.println("\nPlease enter a Master Password between 8 and 30 characters: ");
-			masterPassword = scanner.nextLine();
-		}
+		masterPassword = passwordIO.getInput();
 		masterPassword = Hasher.getSHA256(masterPassword);
 
 		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
@@ -177,11 +174,8 @@ public class Application {
 
 		if(bverify==true) {
 			System.out.println("\nEnter Validation key: ");
-			String validationKey = scanner.nextLine();
-			while (validationKey.length() < 8 || validationKey.length() > 30) {
-				System.out.println("\nPlease enter a Validation key between 8 and 30 characters: ");
-				validationKey = scanner.nextLine();
-			}
+			validationKey = passwordIO.getInput();
+
 			validationKey = Hasher.getSHA256(validationKey);
 			userName=userAccount.getUserName();
 			masterPassword=userAccount.getMasterPassword();
@@ -198,8 +192,6 @@ public class Application {
 			functionality();
 		}
 
-		//getDatabaseManager from userAccount that thulana gives
-
 	}
 
 	/**
@@ -209,6 +201,7 @@ public class Application {
 		boolean bConfirm = false;
 		Integer checker;
 		String userName,masterPassword,validationKey,base64un,base64mp,base64vk;
+		PasswordIO passwordIO = new PasswordIO();
 
 		printSeparator();
 		System.out.println("\nEnter your Username: ");
@@ -231,9 +224,10 @@ public class Application {
 
 		}
 
-		masterPassword=ValidatePassword.validate("Master Password");
+		System.out.println("Enter Your Master Password: ");
+		masterPassword=passwordIO.getInput();
 		System.out.println("\nA validation key is required to further the integrity of your password..");
-		validationKey=ValidatePassword.validate("Validation key");
+		validationKey=passwordIO.getInput();
 		masterPassword=Hasher.getSHA256(masterPassword);
 		validationKey=Hasher.getSHA256(validationKey);
 		userAccount = new UserAccount(userName,masterPassword,validationKey);
