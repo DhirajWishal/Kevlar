@@ -1,6 +1,5 @@
 from http.server import BaseHTTPRequestHandler
 
-import Account
 import CryptoService
 import Database
 import Packager
@@ -68,6 +67,10 @@ class Server(BaseHTTPRequestHandler):
         # Handle the user update request.
         elif xml_parser.mode == "update":
             self.handle_update(xml_parser)
+
+        # If none of the modes match, say that the mode is invalid.
+        else:
+            self.write_data(self.packager.generate_status("Invalid mode"))
 
     def handle_check(self, xml_parser):
         """
@@ -175,6 +178,9 @@ class Server(BaseHTTPRequestHandler):
                 else:
                     self.write_data(self.packager.generate_status("Successful"))
 
+        else:
+            self.write_data(self.packager.generate_status("Account already exists"))
+
     def handle_update(self, xml_parser):
         """
         Handle the client's update request.
@@ -200,9 +206,10 @@ class Server(BaseHTTPRequestHandler):
         # If the user exists, we can proceed to update the account.
         if self.database.user_exist(username):
             validation_key = self.database.get_validation_key(username)
+            internal_hmac = CryptoService.perform_hmac(database, validation_key)
 
             # First we validate the incoming database data.
-            if hmac == CryptoService.perform_hmac(database, validation_key):
+            if hmac == internal_hmac:
 
                 # If successful, we can update the table.
                 self.database.update(username, password, validation_key, database)
@@ -211,3 +218,7 @@ class Server(BaseHTTPRequestHandler):
             # If not, we send an error status.
             else:
                 self.write_data(self.packager.generate_status("HMAC Error"))
+
+        else:
+            self.write_data(self.packager.generate_status("User does not exist"))
+

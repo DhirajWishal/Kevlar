@@ -233,12 +233,15 @@ public class Connector {
             byte[] byteHmac = mac.doFinal(serverDatabase.getBytes(StandardCharsets.UTF_8));
             String finalHMACKey = Base64.getEncoder().encodeToString(byteHmac);
             if (finalHMACKey.equals(serverHMac)) {
-                byte[] serverdataBase64 = (Base64.getDecoder().decode(serverDatabase));
                 FileOutputStream databseFile = new FileOutputStream("userData.db");
-                FileWriter writeToFile = new FileWriter("userData.db");
-                databseFile.write(serverdataBase64);
+                databseFile.write(database64Decoded);
+                databseFile.close();
                 DatabaseManager databaseManager = new DatabaseManager();
-                sendToApplication = new UserAccount(serverUserData, serverPassword, validationKey, databaseManager, ivAsBytes);
+                sendToApplication = new UserAccount(
+                        new String(Base64.getDecoder().decode(serverUserData), StandardCharsets.UTF_8),
+                        new String(Base64.getDecoder().decode(serverPassword), StandardCharsets.UTF_8),
+                        new String(Base64.getDecoder().decode(validationKey), StandardCharsets.UTF_8),
+                        databaseManager, ivAsBytes);
             }
         }
         return (sendToApplication);

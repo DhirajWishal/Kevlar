@@ -23,6 +23,22 @@ public class UserAccount {
      *
      * @param name The name of the user.S
      * @param mp   The master password.
+     */
+    public UserAccount(String name, String mp) {
+        this.userName = name;
+        this.masterPassword = mp;
+        this.validationKey = "empty";
+        //this.databaseManager = new DatabaseManager();
+        byte[] iv = new byte[16];
+        new SecureRandom().nextBytes(iv);
+        this.initializationVectorSpec = new IvParameterSpec(iv);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param name The name of the user.S
+     * @param mp   The master password.
      * @param vk   The validation key.
      */
     public UserAccount(String name, String mp, String vk) {

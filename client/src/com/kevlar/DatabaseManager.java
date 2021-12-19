@@ -163,8 +163,8 @@ public class DatabaseManager {
     public static String getHmac(String validation) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
 
         byte[] content = Files.readAllBytes(Paths.get("userData.db"));
-        byte[] encodedFile=Base64.getEncoder().encode(content);
-        byte[] validationBase64=Base64.getEncoder().encode(validation.getBytes());
+        byte[] encodedFile = Base64.getEncoder().encode(content);
+        byte[] validationBase64 = validation.getBytes();
         //Generates a Key using the validation Key
         SecretKeySpec secretKeySpec = new SecretKeySpec(validationBase64, "SHA-256");
         //Using SHA-256
@@ -269,7 +269,7 @@ public class DatabaseManager {
     /**
      * Deletes the whole "userData.db" file after using it
      */
-    public void deleteData() {
+    public static void deleteData() {
         String status = " ";
         File dataBaseFile = new File("userData.db");
         if (dataBaseFile.delete()) {

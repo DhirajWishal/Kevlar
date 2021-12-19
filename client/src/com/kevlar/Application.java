@@ -3,7 +3,9 @@ package com.kevlar;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.xml.crypto.Data;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -36,12 +38,13 @@ public class Application {
 					break;
 
 				case 2:
+					DatabaseManager.deleteData();
 					createAccount();
 					break;
 
 				case 0:
 					bShouldRun = false;
-					userAccount.getDatabaseManager().deleteData();
+					DatabaseManager.deleteData();
 					break;
 
 				default:
@@ -88,19 +91,13 @@ public class Application {
 					break;
 
 				case 3:
-					editMasterPassword();
-					break;
-
-				case 4:
-					editValidationKey();
-				break;
-
-				case 5:
 					editpassword();
 					break;
 
 				case 0:
 					bShouldRun = false;
+					userAccount = null;
+					DatabaseManager.deleteData();
 					break;
 
 				default:
@@ -117,9 +114,7 @@ public class Application {
 		System.out.println("Available commands: ");
 		System.out.println("1. View Password.");
 		System.out.println("2. Add new password.");
-		System.out.println("3. Change Master Password.");
-		System.out.println("4. Change Validation Key.");
-		System.out.println("5. Change a stored password");
+		System.out.println("3. Change a stored password");
 		System.out.println("0. Logout of application.");
 		printSeparator();
 	}
@@ -226,7 +221,7 @@ public class Application {
 		}
 		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
 		checker=connector.checkAccountExist(base64un,"");
-		while (checker==2){
+		while (checker > 0){
 			System.out.println("\n"+userName+" already exists! please re:enter new username ");
 			userName = scanner.nextLine();
 			while (userName.length() < 5 || userName.length() > 30) {
@@ -305,22 +300,8 @@ public class Application {
 		password=ValidatePassword.validate("Password");
 		password = userAccount.encrypt(password);
 		userAccount.getDatabaseManager().insertData(title,titleUsername,description,password);
-		connector.sendExistingDataToServer(userAccount.getUserName(),userAccount.getMasterPassword(), userAccount.getValidationKey());
-	}
 
-	/**
-	 * Enter a new password to the database.
-	 */
-	private void editMasterPassword() {
-		printSeparator();
-		// Logic goes here.
-	}
-
-	/**
-	 * Enter a new password to the database.
-	 */
-	private void editValidationKey() {
-		printSeparator();
+		connector.sendExistingDataToServer(Base64.getEncoder().encodeToString(userAccount.getUserName().getBytes()),Base64.getEncoder().encodeToString(userAccount.getMasterPassword().getBytes()), Base64.getEncoder().encodeToString(userAccount.getValidationKey().getBytes()));
 	}
 
 	/**
@@ -362,7 +343,7 @@ public class Application {
 		}else{
 			System.out.println("Password change failed invalid account name");
 		}
-		connector.sendExistingDataToServer(userAccount.getUserName(),userAccount.getMasterPassword(), userAccount.getValidationKey());
+		connector.sendExistingDataToServer(Base64.getEncoder().encodeToString(userAccount.getUserName().getBytes()),Base64.getEncoder().encodeToString(userAccount.getMasterPassword().getBytes()), Base64.getEncoder().encodeToString(userAccount.getValidationKey().getBytes()));
 	}
 
 	/**
@@ -413,7 +394,7 @@ public class Application {
 					checker=connector.checkAccountExist(base64un,base64mp);
 					break;
 				case 2:
-					userAccount = new UserAccount(userName,masterPassword,"empty");
+					userAccount = new UserAccount(userName,masterPassword);
 					return true;
 				default:
 					checker=0;
