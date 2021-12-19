@@ -60,9 +60,13 @@ class Server(BaseHTTPRequestHandler):
         elif xml_parser.mode == "login":
             self.handle_login(xml_parser)
 
-        # Handle the user account request.
+        # Handle the user create account request.
         elif xml_parser.mode == "account":
             self.handle_account(xml_parser)
+
+        # Handle the user update request.
+        elif xml_parser.mode == "update":
+            self.handle_update(xml_parser)
 
     def handle_check(self, xml_parser):
         """
@@ -136,7 +140,7 @@ class Server(BaseHTTPRequestHandler):
 
     def handle_account(self, xml_parser):
         """
-        Handle the client's account request.
+        Handle the client's create account request.
         :param xml_parser: The xml parser used to parse the request.
         :return: None
         """
@@ -163,7 +167,7 @@ class Server(BaseHTTPRequestHandler):
                 initialization_vector = element.text
 
         # If the user exists, we can proceed to update the account.
-        if self.database.user_exist(username):
+        if not self.database.user_exist(username):
             validation_key = self.database.get_validation_key(username)
 
             # First we validate the incoming database data.
@@ -188,3 +192,55 @@ class Server(BaseHTTPRequestHandler):
                 # Else, we create a new account and then send a success note.
                 self.database.insert(username, password, user_validation_key, database, initialization_vector)
                 self.write_data(self.packager.generate_status("Created user"))
+
+    def handle_update(self, xml_parser):
+        """
+        Handle the client's update request.
+        :param xml_parser: The xml parser used to parse the request.
+        :return: None
+        """
+        username = ""
+        password = ""
+        database = ""
+        hmac = ""
+        user_validation_key = ""
+
+        # Walk through the xml tree and get the required information.
+        for element in xml_parser.tree.getroot():
+            if element.tag == "username":
+                username = element.text
+            elif element.tag == "password":
+                password = element.text
+            elif element.tag == "database":
+                database = element.text
+            elif element.tag == "hmac":
+                hmac = element.text
+            elif element.tag == "validation":
+                user_validation_key = element.text
+
+        # If the user exists, we can proceed to update the account.
+        if not self.database.user_exist(username):
+            validation_key = self.database.get_validation_key(username)
+
+            # First we validate the incoming database data.
+            if hmac == CryptoService.hmac(database, validation_key):
+
+                # If successful, we can update the table.
+                self.database.update(Account.Account(username, password, validation_key, database))
+                self.write_data(self.packager.generate_status("Successful"))
+
+            # If not, we send an error status.
+            else:
+                self.write_data(self.packager.generate_status("HMAC Error"))
+
+        # If the username does not exist, we try to create a new account.
+        else:
+            # If the validation key parameter is empty in the xml, we consider that as a malformed xml document and
+            # send an error status.
+            if user_validation_key == "":
+                self.write_data(self.packager.generate_status("Empty validation key"))
+
+            else:
+                # Else, we create a new account and then send a success note.
+                self.database.update(username, password, user_validation_key, database)
+                self.write_data(self.packager.generate_status("User updated"))

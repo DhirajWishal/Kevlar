@@ -51,20 +51,22 @@ class Database:
         except IntegrityError:
             return False
 
-    def update(self, account: Account.Account):
+    def update(self, username: str, password: str, validation: str, database: str):
         """
-        Update an existing record in the table.
-        Make sure that the record to be updated exists within the database.
-        :param account: The account information to update with.
-        :return: None.
+        Update a table in the database.
+        :param username: The username of the user.
+        :param password: The password.
+        :param validation: The validation key.
+        :param database: The database data to set.
+        :return: None
         """
         self.connection.execute(
             f"""
                 UPDATE User SET
-                password = '{account.password}',
-                validation = '{account.validation}',
-                database = '{account.database}'
-                WHERE username = '{account.username}'
+                password = '{password}',
+                validation = '{validation}',
+                database = '{database}'
+                WHERE username = '{username}'
             """)
 
         self.commit()
