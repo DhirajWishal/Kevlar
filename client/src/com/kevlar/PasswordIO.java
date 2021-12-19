@@ -5,9 +5,11 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Random;
+import java.util.Scanner;
 
 public class PasswordIO {
     private String filename = "";
+    private Scanner scanner = new Scanner(System.in);
 
     /**
      * Default constructor.
@@ -39,7 +41,7 @@ public class PasswordIO {
     public String getInput() throws IOException {
         System.out.println("The file is located at: " + System.getProperty("user.dir") + "\\" + filename);
         System.out.print("Please hit enter after closing the text file.");
-        System.in.read();
+        scanner.nextLine();
 
         FileInputStream file = new FileInputStream(filename);
         String input = new String(file.readAllBytes(), StandardCharsets.UTF_8);
@@ -51,6 +53,12 @@ public class PasswordIO {
         return input;
     }
 
+    /**
+     * Set output data to a file and delete it afterwards.
+     *
+     * @param message The message to be sent.
+     * @throws IOException This function can throw an IO exception.
+     */
     public void setOutput(String message) throws IOException {
         FileOutputStream file = new FileOutputStream(filename);
         file.write(message.getBytes(StandardCharsets.UTF_8));
@@ -58,6 +66,7 @@ public class PasswordIO {
 
         System.out.println("The file is located at: " + System.getProperty("user.dir") + "\\" + filename);
         System.out.print("Please hit enter after closing the text file.");
+        scanner.nextLine();
 
         File fileToDelete = new File(filename);
         fileToDelete.delete();
