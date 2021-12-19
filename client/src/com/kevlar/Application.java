@@ -3,6 +3,7 @@ package com.kevlar;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -103,6 +104,8 @@ public class Application {
 
 				case 0:
 					bShouldRun = false;
+					userAccount = null;
+					DatabaseManager.deleteData();
 					break;
 
 				default:
