@@ -161,17 +161,17 @@ public class DatabaseManager {
      * @throws InvalidKeyException      makes sure the key is correct and not in a wrong length
      */
     public static String getHmac(String validation) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
-        //Reads the file
-        File databsaeFile = new File("userData.db");
-        //Converts the file to Byte[] Data type
+
         byte[] content = Files.readAllBytes(Paths.get("userData.db"));
+        byte[] encodedFile=Base64.getEncoder().encode(content);
+        byte[] validationBase64=Base64.getEncoder().encode(validation.getBytes());
         //Generates a Key using the validation Key
-        SecretKeySpec secretKeySpec = new SecretKeySpec(validation.getBytes(), "SHA-256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(validationBase64, "SHA-256");
         //Using SHA-256
-        Mac mac = Mac.getInstance("SHA-256");
+        Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(secretKeySpec);
         //byteHmac is given the final value of the H Mac
-        byte[] byteHmac = mac.doFinal(content);
+        byte[] byteHmac = mac.doFinal(encodedFile);
         //Encodes the bytes into the String and returns it
         String finalHMACKey = Base64.getEncoder().encodeToString(byteHmac);
         return finalHMACKey;
