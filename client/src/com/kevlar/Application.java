@@ -152,9 +152,7 @@ public class Application {
 		Integer checker;
 		boolean bverify;
 
-
 		printSeparator();
-
 
 		System.out.println("\nEnter your Username: ");
 		userName = scanner.nextLine();
@@ -260,8 +258,9 @@ public class Application {
 	/**
 	 * Index and decrypt a password.
 	 */
-	private void viewPassword() {
-		String title,password,username;
+	private void viewPassword() throws IOException {
+		String title,password,username,displayValues;
+		PasswordIO passwordIO = new PasswordIO();
 
 		printSeparator();
 		System.out.println("Which account password would you like to view?");
@@ -275,9 +274,8 @@ public class Application {
 		password= userAccount.getDatabaseManager().getPassword(title);
 		if (password != null){
 			password=userAccount.decrypt(password);
-			System.out.println("Your Username: "+username);
-			System.out.println("Your Password: "+password);
-			//can use file here!!
+			displayValues="Your Username: "+username+"\n"+"Your Password: "+password;
+			passwordIO.setOutput(displayValues);
 		}else{
 			System.out.println("Exiting view password...");
 		}
@@ -289,6 +287,7 @@ public class Application {
 	* */
 	private void addPassword() throws NoSuchAlgorithmException, IOException, InvalidKeyException {
 		String title,password,titleUsername,description;
+		PasswordIO passwordIO = new PasswordIO();
 
 		printSeparator();
 		System.out.println("For what account will this Password be stored for?: ");
@@ -297,7 +296,8 @@ public class Application {
 		description=scanner.nextLine();
 		System.out.println("What username did you use for this account?: ");
 		titleUsername= scanner.nextLine();
-		password=ValidatePassword.validate("Password");
+		System.out.println("Enter your password: ");
+		password=passwordIO.getInput();
 		password = userAccount.encrypt(password);
 		userAccount.getDatabaseManager().insertData(title,titleUsername,description,password);
 
@@ -310,6 +310,7 @@ public class Application {
 	private void editpassword() throws NoSuchAlgorithmException, IOException, InvalidKeyException {
 		String title,password;
 		boolean bexists;
+		PasswordIO passwordIO = new PasswordIO();
 
 		printSeparator();
 		System.out.println("Which account password do you wish to change?: ");
@@ -332,7 +333,8 @@ public class Application {
 				bexists = userAccount.getDatabaseManager().checkForPassword(title, password);
 			}
 			if (!password.equals("-1")){
-				password=ValidatePassword.validate("new Password");
+				System.out.println("Enter your password: ");
+				password=passwordIO.getInput();
 				password=userAccount.encrypt(password);
 				userAccount.getDatabaseManager().changePassword(title,password);
 				System.out.println("Password changed successfully!!");
