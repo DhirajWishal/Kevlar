@@ -15,7 +15,6 @@ public class Application {
 	private Scanner scanner = new Scanner(System.in);
 	private UserAccount userAccount;
 	private Connector connector= new Connector();
-	private DatabaseManager dbManager = new DatabaseManager();
 
 	/**
 	 * Default constructor.
@@ -30,12 +29,6 @@ public class Application {
 	public void run() throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
 		boolean bShouldRun = true;
 		while (bShouldRun) {
-			printLoginMenu();
-			try {
-				dbManager.deleteData();
-			}catch (SQLException e){
-				System.out.println("previous database not deleted!!");
-			}
 			switch (getCommand()) {
 				case 1:
 					login();
@@ -47,6 +40,12 @@ public class Application {
 
 				case 0:
 					bShouldRun = false;
+					printLoginMenu();
+					try {
+						userAccount.getDatabaseManager().deleteData();
+					}catch (SQLException e){
+						System.out.println("User did not login or create account..");
+					}
 					break;
 
 				default:
@@ -79,7 +78,7 @@ public class Application {
 			printSeparator();
 			System.out.println("Title     Description");
 			printSeparator();
-			dbManager.getTitleDescription();
+			userAccount.getDatabaseManager().getTitleDescription();
 			printSeparator();
 			System.out.println("\n");
 			printFunctionalMenu();
@@ -183,7 +182,7 @@ public class Application {
 
 		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
 		base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
-		checker=connector.sendDataToServer(base64un,base64mp);
+		checker=connector.checkAccountExist(base64un,base64mp);
 
 		bverify=verifyLogin(checker,userName,masterPassword);
 
@@ -208,6 +207,8 @@ public class Application {
 				System.out.println(e.getMessage());
 			}
 		}
+
+		//getDatabaseManager from userAccount that thulana gives
 
 	}
 
@@ -243,8 +244,8 @@ public class Application {
 			System.out.println(e.getMessage());
 		}
 
-		dbManager.createDatabase();
-		dbManager.createTable();
+		userAccount.getDatabaseManager().createDatabase();
+		userAccount.getDatabaseManager().createTable();
 		functionality();
 	}
 
@@ -259,15 +260,15 @@ public class Application {
 		printSeparator();
 		System.out.println("Which account password would you like to view?");
 		title=scanner.nextLine();
-		username=dbManager.getUserName(title);
+		username=userAccount.getDatabaseManager().getUserName(title);
 		while (username==null && !title.equals("-1")){
 			System.out.println("Please enter an appropriate account title(-1 to exit)");
 			title=scanner.nextLine();
-			username=dbManager.getUserName(title);
+			username=userAccount.getDatabaseManager().getUserName(title);
 		}
-		password= dbManager.getPassword(title);
+		password= userAccount.getDatabaseManager().getPassword(title);
 		if (password != null){
-			password=AES.decrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
+			password=userAccount.decrypt(password);
 			System.out.println("Your Username: "+username);
 			System.out.println("Your Password: "+password);
 			//can use file here!!
@@ -291,8 +292,8 @@ public class Application {
 		System.out.println("What username did you use for this account?: ");
 		titleUsername= scanner.nextLine();
 		password=ValidatePassword.validate("Password");
-		password = AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
-		dbManager.insertData(title,titleUsername,description,password);
+		password = userAccount.encrypt(password);
+		userAccount.getDatabaseManager().insertData(title,titleUsername,description,password);
 
 	}
 
@@ -321,27 +322,27 @@ public class Application {
 		printSeparator();
 		System.out.println("Which account password do you wish to change?: ");
 		title=scanner.nextLine();
-		bexists=dbManager.checkForTitle(title);
+		bexists=userAccount.getDatabaseManager().checkForTitle(title);
 		while (bexists==false && !title.equals("-1")){
 			System.out.println("Please enter proper account name!(-1 to exit)");
 			title=scanner.nextLine();
-			bexists=dbManager.checkForTitle(title);
+			bexists=userAccount.getDatabaseManager().checkForTitle(title);
 		}
 		if (!title.equals("-1")) {
 			System.out.println("Type in previously entered password: ");
 			password = scanner.nextLine();
-			password=AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
-			bexists = dbManager.checkForPassword(title, password);
+			password=userAccount.encrypt(password);
+			bexists = userAccount.getDatabaseManager().checkForPassword(title, password);
 			while (bexists==false && !password.equals("-1")){
 				System.out.println("Password incorrect Re-Enter!(-1 to exit)");
 				password=scanner.nextLine();
-				password=AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
-				bexists = dbManager.checkForPassword(title, password);
+				password=userAccount.encrypt(password);
+				bexists = userAccount.getDatabaseManager().checkForPassword(title, password);
 			}
 			if (!password.equals("-1")){
 				password=ValidatePassword.validate("new Password");
-				password=AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
-				dbManager.changePassword(title,password);
+				password=userAccount.encrypt(password);
+				userAccount.getDatabaseManager().changePassword(title,password);
 				System.out.println("Password changed successfully!!");
 			}else{
 				System.out.println("Password change failed User could not remember past password");
@@ -353,7 +354,7 @@ public class Application {
 	}
 
 	/**
-	 * verify password and username
+	 * verify password and username & check if they are there
 	 */
 	public boolean verifyLogin(Integer checker,String userName,String masterPassword) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
 		String base64un,base64mp,leaver;
@@ -385,9 +386,9 @@ public class Application {
 
 					base64un= Base64.getEncoder().encodeToString(userName.getBytes());
 					base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
-					checker=connector.sendDataToServer(base64un,base64mp);
+					checker=connector.checkAccountExist(base64un,base64mp);
 					break;
-				case 2:
+				case 1:
 					System.out.println("Do you wish to create a new Account instead?(Yes/No/Y/N)");
 					leaver=scanner.nextLine();
 					if(leaver.equalsIgnoreCase("yes") || leaver.equalsIgnoreCase("y")){
@@ -397,9 +398,9 @@ public class Application {
 					masterPassword=scanner.nextLine();
 					masterPassword = Hasher.getSHA256(masterPassword);
 					base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
-					checker=connector.sendDataToServer(base64un,base64mp);
+					checker=connector.checkAccountExist(base64un,base64mp);
 					break;
-				case 1:
+				case 2:
 					userAccount = new UserAccount(userName,masterPassword,"empty");
 					return true;
 				default:
