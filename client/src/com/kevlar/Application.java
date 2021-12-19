@@ -225,7 +225,7 @@ public class Application {
 		}
 		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
 		checker=connector.checkAccountExist(base64un,"");
-		while (checker==0){
+		while (checker==2){
 			System.out.println("\n"+userName+" already exists! please re:enter new username ");
 			userName = scanner.nextLine();
 			while (userName.length() < 5 || userName.length() > 30) {
