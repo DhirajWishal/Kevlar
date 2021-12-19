@@ -17,7 +17,8 @@ class Server(BaseHTTPRequestHandler):
         :param data: The data to write as a string.
         :return: None.
         """
-        self.send_header("Content-Length", str(len(data)))
+        size = str(len(data))
+        self.send_header("Content-Length", size)
         self.end_headers()
         self.wfile.write(bytes(data, "utf-8"))
 
@@ -38,7 +39,7 @@ class Server(BaseHTTPRequestHandler):
         """
         self.database.show_content()
         self.send_response(200)
-        self.send_header("Content-type", "text/xml")
+        self.send_header("Content-type", "application/xml")
         self.handle_request(self.rfile.read(int(self.headers['Content-Length'])))
 
     def handle_request(self, data: bytes):

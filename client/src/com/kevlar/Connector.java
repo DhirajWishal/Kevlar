@@ -13,6 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Base64;
 
@@ -184,13 +185,13 @@ public class Connector {
                 serverHMac = kevlarElement.getElementsByTagName("hmac").item(0).getTextContent();
                 serverIV = kevlarElement.getElementsByTagName("iv").item(0).getTextContent();
             }
-            byte[] ivAsBytes = serverIV.getBytes();
+            byte[] ivAsBytes = Base64.getDecoder().decode(serverIV.getBytes());
             byte[] validationBytes = validationKey.getBytes();
             byte[] database64Decoded = Base64.getDecoder().decode(serverDatabase);
             SecretKeySpec secretKeySpec = new SecretKeySpec(validationBytes, "SHA-256");
-            Mac mac = Mac.getInstance("SHA-256");
+            Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(secretKeySpec);
-            byte[] byteHmac = mac.doFinal(database64Decoded);
+            byte[] byteHmac = mac.doFinal(serverDatabase.getBytes(StandardCharsets.UTF_8));
             String finalHMACKey = Base64.getEncoder().encodeToString(byteHmac);
             if (finalHMACKey.equals(serverHMac)) {
                 byte[] serverdataBase64 = (Base64.getDecoder().decode(serverDatabase));

@@ -61,12 +61,12 @@ public class Sender {
             content = bufferedReader.readLine();
             length = bufferedReader.readLine();
             bufferedReader.readLine();
+            response = "";
 
             // Read the post payload data
             int toCopy = Integer.parseInt(length.replace("Content-Length:", "").strip());
-            char[] buffer = new char[toCopy];
-            bufferedReader.read(buffer, 0, toCopy);
-            response = String.valueOf(buffer);
+            while ((toCopy--) > 0)
+                response += (char) bufferedReader.read();
         } catch (IOException | GeneralSecurityException error) {
             System.err.println("Something went wrong! Are you sure that the server is up and running?");
             System.err.println("The error is: " + error);

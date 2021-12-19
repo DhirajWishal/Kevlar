@@ -12,7 +12,7 @@ def perform_hmac(database: str, validation_key: str):
     """
     hasher = hmac.HMAC(bytes(validation_key, "utf-8"), hashes.SHA256())
     hasher.update(bytes(database, "utf-8"))
-    return to_base64(hasher.finalize())
+    return to_base64(hasher.finalize()).decode("utf-8")
 
 
 def to_base64(data):
