@@ -30,12 +30,6 @@ public class Application {
 	public void run() throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
 		boolean bShouldRun = true;
 		while (bShouldRun) {
-			printLoginMenu();
-			try {
-				dbManager.deleteData();
-			}catch (SQLException e){
-				System.out.println("previous database not deleted!!");
-			}
 			switch (getCommand()) {
 				case 1:
 					login();
@@ -47,6 +41,12 @@ public class Application {
 
 				case 0:
 					bShouldRun = false;
+					printLoginMenu();
+					try {
+						dbManager.deleteData();
+					}catch (SQLException e){
+						System.out.println("previous database not deleted!!");
+					}
 					break;
 
 				default:
@@ -183,7 +183,7 @@ public class Application {
 
 		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
 		base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
-		checker=connector.sendDataToServer(base64un,base64mp);
+		checker=connector.checkAccountExist(base64un,base64mp);
 
 		bverify=verifyLogin(checker,userName,masterPassword);
 
@@ -208,6 +208,8 @@ public class Application {
 				System.out.println(e.getMessage());
 			}
 		}
+
+		//getDatabaseManager from userAccount that thulana gives
 
 	}
 
@@ -267,7 +269,7 @@ public class Application {
 		}
 		password= dbManager.getPassword(title);
 		if (password != null){
-			password=AES.decrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
+			password=userAccount.decrypt(password);
 			System.out.println("Your Username: "+username);
 			System.out.println("Your Password: "+password);
 			//can use file here!!
@@ -291,7 +293,7 @@ public class Application {
 		System.out.println("What username did you use for this account?: ");
 		titleUsername= scanner.nextLine();
 		password=ValidatePassword.validate("Password");
-		password = AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
+		password = userAccount.encrypt(password);
 		dbManager.insertData(title,titleUsername,description,password);
 
 	}
@@ -330,17 +332,17 @@ public class Application {
 		if (!title.equals("-1")) {
 			System.out.println("Type in previously entered password: ");
 			password = scanner.nextLine();
-			password=AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
+			password=userAccount.encrypt(password);
 			bexists = dbManager.checkForPassword(title, password);
 			while (bexists==false && !password.equals("-1")){
 				System.out.println("Password incorrect Re-Enter!(-1 to exit)");
 				password=scanner.nextLine();
-				password=AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
+				password=userAccount.encrypt(password);
 				bexists = dbManager.checkForPassword(title, password);
 			}
 			if (!password.equals("-1")){
 				password=ValidatePassword.validate("new Password");
-				password=AES.encrypt(password,userAccount.getMasterPassword(),userAccount.getUserName());
+				password=userAccount.encrypt(password);
 				dbManager.changePassword(title,password);
 				System.out.println("Password changed successfully!!");
 			}else{
@@ -353,7 +355,7 @@ public class Application {
 	}
 
 	/**
-	 * verify password and username
+	 * verify password and username & check if they are there
 	 */
 	public boolean verifyLogin(Integer checker,String userName,String masterPassword) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
 		String base64un,base64mp,leaver;
@@ -385,9 +387,9 @@ public class Application {
 
 					base64un= Base64.getEncoder().encodeToString(userName.getBytes());
 					base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
-					checker=connector.sendDataToServer(base64un,base64mp);
+					checker=connector.checkAccountExist(base64un,base64mp);
 					break;
-				case 2:
+				case 1:
 					System.out.println("Do you wish to create a new Account instead?(Yes/No/Y/N)");
 					leaver=scanner.nextLine();
 					if(leaver.equalsIgnoreCase("yes") || leaver.equalsIgnoreCase("y")){
@@ -397,9 +399,9 @@ public class Application {
 					masterPassword=scanner.nextLine();
 					masterPassword = Hasher.getSHA256(masterPassword);
 					base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
-					checker=connector.sendDataToServer(base64un,base64mp);
+					checker=connector.checkAccountExist(base64un,base64mp);
 					break;
-				case 1:
+				case 2:
 					userAccount = new UserAccount(userName,masterPassword,"empty");
 					return true;
 				default:

@@ -7,6 +7,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.util.Base64;
 
@@ -29,7 +30,9 @@ public class UserAccount {
         this.masterPassword = mp;
         this.validationKey = vk;
         this.databaseManager = new DatabaseManager();
-        this.initializationVectorSpec = new IvParameterSpec(new byte[16]);
+        byte[] iv = {(byte) 163, (byte) 127, (byte) 43, (byte) 227, 29, (byte) 181, (byte) 193, (byte) 101, (byte) 239, 2, (byte) 211, (byte) 149, (byte) 197, (byte) 37, (byte) 59, (byte) 83};
+        new SecureRandom().nextBytes(iv);
+        this.initializationVectorSpec = new IvParameterSpec(iv);
     }
 
     /**
@@ -85,14 +88,6 @@ public class UserAccount {
         return this.validationKey;
     }
 
-    /**
-     * Set the database manager object.
-     *
-     * @param databaseManager The database manager to set.
-     */
-    public void setDatabaseManager(DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
-    }
 
     /**
      * Utility function to get the database manager.
@@ -103,14 +98,6 @@ public class UserAccount {
         return databaseManager;
     }
 
-    /**
-     * Set the initialization vector.
-     *
-     * @param initializationVectorSpec The initialization vector to set.
-     */
-    public void setInitializationVector(IvParameterSpec initializationVectorSpec) {
-        this.initializationVectorSpec = initializationVectorSpec;
-    }
 
     /**
      * Get the initialization vector.
