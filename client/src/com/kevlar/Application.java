@@ -37,12 +37,13 @@ public class Application {
 					break;
 
 				case 2:
+					DatabaseManager.deleteData();
 					createAccount();
 					break;
 
 				case 0:
 					bShouldRun = false;
-					userAccount.getDatabaseManager().deleteData();
+					DatabaseManager.deleteData();
 					break;
 
 				default:
@@ -227,7 +228,7 @@ public class Application {
 		}
 		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
 		checker=connector.checkAccountExist(base64un,"");
-		while (checker==2){
+		while (checker > 0){
 			System.out.println("\n"+userName+" already exists! please re:enter new username ");
 			userName = scanner.nextLine();
 			while (userName.length() < 5 || userName.length() > 30) {
@@ -415,7 +416,7 @@ public class Application {
 					checker=connector.checkAccountExist(base64un,base64mp);
 					break;
 				case 2:
-					userAccount = new UserAccount(userName,masterPassword,"empty");
+					userAccount = new UserAccount(userName,masterPassword);
 					return true;
 				default:
 					checker=0;
