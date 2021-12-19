@@ -91,14 +91,6 @@ public class Application {
 					break;
 
 				case 3:
-					editMasterPassword();
-					break;
-
-				case 4:
-					editValidationKey();
-				break;
-
-				case 5:
 					editpassword();
 					break;
 
@@ -122,9 +114,7 @@ public class Application {
 		System.out.println("Available commands: ");
 		System.out.println("1. View Password.");
 		System.out.println("2. Add new password.");
-		System.out.println("3. Change Master Password.");
-		System.out.println("4. Change Validation Key.");
-		System.out.println("5. Change a stored password");
+		System.out.println("3. Change a stored password");
 		System.out.println("0. Logout of application.");
 		printSeparator();
 	}
@@ -312,21 +302,6 @@ public class Application {
 		userAccount.getDatabaseManager().insertData(title,titleUsername,description,password);
 
 		connector.sendExistingDataToServer(Base64.getEncoder().encodeToString(userAccount.getUserName().getBytes()),Base64.getEncoder().encodeToString(userAccount.getMasterPassword().getBytes()), Base64.getEncoder().encodeToString(userAccount.getValidationKey().getBytes()));
-	}
-
-	/**
-	 * Enter a new password to the database.
-	 */
-	private void editMasterPassword() {
-		printSeparator();
-		// Logic goes here.
-	}
-
-	/**
-	 * Enter a new password to the database.
-	 */
-	private void editValidationKey() {
-		printSeparator();
 	}
 
 	/**
