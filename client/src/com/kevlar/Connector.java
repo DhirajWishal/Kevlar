@@ -33,7 +33,16 @@ public class Connector {
     public Connector() throws Exception {
     }
 
-
+    /**
+     *
+     * @param userName
+     * @param password
+     * @param validationKey
+     * @return
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     */
     private String userDataToXML(String userName, String password, String validationKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         String encodedDatabase = base64TheFile();
         String hMac = getHmac(validationKey);
@@ -55,7 +64,7 @@ public class Connector {
         userDataXML += "<password>" + password + "</password>";
         userDataXML += "<database>" + encodedDatabase + "</database>";
         userDataXML += "<validation>" + validationKey + "</validation>";
-        userDataXML += "<iv>"+ivData+"</iv>";
+        userDataXML += "<iv>" + ivData + "</iv>";
         userDataXML += "</kevlar>";
         return userDataXML;
     }
@@ -68,19 +77,51 @@ public class Connector {
         return new IvParameterSpec(iv);
     }
 
-    public void sendExistingDataToServer(String userName, String password ,String validationKey) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+    /**
+     * This function will update the SERVER's database on any password changes or username changes
+     *
+     * @param userName
+     * @param password
+     * @param validationKey
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     * @throws IOException
+     */
+    public void sendExistingDataToServer(String userName, String password, String validationKey) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         String userData = userDataToXML(userName, password, validationKey);
         Sender sender = new Sender(userData);
         System.out.println(sender.getResponse());   // TODO
     }
-    public void sendNewDataToServer(String userName, String password,String validationKey, String ivData) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+
+    /**
+     * This function will send data to the server to MAKE a new entry
+     *
+     * @param userName
+     * @param password
+     * @param validationKey
+     * @param ivData
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     * @throws IOException
+     */
+    public void sendNewDataToServer(String userName, String password, String validationKey, String ivData) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         String userData = newUserDataToXML(userName, password, validationKey, ivData);
         Sender sender = new Sender(userData);
         System.out.println(sender.getResponse());   // TODO
     }
 
 
-    //Take validation Key as a parameter
+    /**
+     * This function will check if the account already exists in the server
+     * @param userName
+     * @param password
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidAlgorithmParameterException
+     * @throws InvalidKeyException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     */
     public Integer checkAccountExist(String userName, String password) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] validationkey = {0}; //temp var
         String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
@@ -104,9 +145,19 @@ public class Connector {
         return (stausCode);
     }
 
+    /**
+     * This function will fetch the data from the server and return a userAccount object with all the data
+     * @param userName
+     * @param password
+     * @param validationKey
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     * @throws IOException
+     */
     public UserAccount getUserAccount(String userName, String password, String validationKey) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-        sendData += "<kevlar mode=\"check\">";
+        sendData += "<kevlar mode=\"login\">";
         sendData += "<username>" + userName + "</username>";
         sendData += "<password>" + password + "</password>";
         sendData += "</kevlar>";
@@ -153,7 +204,11 @@ public class Connector {
         return (sendToApplication);
     }
 
-
+    /**
+     * Converts String values to XML
+     * @param xmlString
+     * @return
+     */
     //Reference https://howtodoinjava.com/java/xml/parse-string-to-xml-dom/
     private static Document convertStringToXMLDocument(String xmlString) {
         //Parser that produces DOM object trees from XML content

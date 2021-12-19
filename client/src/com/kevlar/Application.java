@@ -193,15 +193,16 @@ public class Application {
 			userName=userAccount.getUserName();
 			masterPassword=userAccount.getMasterPassword();
 
-			userAccount=new UserAccount(userName,masterPassword,validationKey);
+
 			base64vk = Base64.getEncoder().encodeToString(validationKey.getBytes());
 			base64un= Base64.getEncoder().encodeToString(userName.getBytes());
 			base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
 			try {
-				connector.sendExistingDataToServer(base64un, base64mp, base64vk);
+				userAccount=connector.getUserAccount(base64un, base64mp, base64vk);
 			} catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
 				System.out.println(e.getMessage());
 			}
+			functionality();
 		}
 
 		//getDatabaseManager from userAccount that thulana gives
