@@ -12,9 +12,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -26,17 +24,19 @@ import static com.kevlar.DatabaseManager.getHmac;
 
 
 public class Connector {
+    private String key = "";
+    private byte[] decodedAES;
+    private SecretKey aesKey;
+    private IvParameterSpec initializationVectorSpec;
+
+
+
     /**
      * the default constructor
      */
     public Connector() throws Exception {
     }
 
-
-    private String key = "";
-    private byte[] decodedAES;
-    private SecretKey aesKey;
-    private IvParameterSpec initializationVectorSpec;
 
     public String userDataToXML(String userName, String password, String validationKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         String encodedDatabase = base64TheFile();
@@ -101,7 +101,7 @@ public class Connector {
         return (stausCode);
     }
 
-    public void getUserAccount(String userName, String password, String validationKey) throws NoSuchAlgorithmException, InvalidKeyException {
+    public UserAccount getUserAccount(String userName, String password, String validationKey) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         sendData += "<kevlar mode=\"check\">";
         sendData += "<username>" + userName + "</username>";
@@ -118,6 +118,7 @@ public class Connector {
         String serverHMac = "";
         String serverIV = " ";
         int validationChecker = 4;
+        UserAccount sendToApplication = null;
         for (int temp = 0; temp < kevlarDataByNode.getLength(); temp++) {
             Node kevlarNode = kevlarDataByNode.item(temp);
             if (kevlarNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -138,10 +139,15 @@ public class Connector {
             byte[] byteHmac = mac.doFinal(database64Decoded);
             String finalHMACKey = Base64.getEncoder().encodeToString(byteHmac);
             if (finalHMACKey.equals(serverHMac)) {
-                File databsaeFile = new File("userData.db");
-
+                byte[] serverdataBase64 = (Base64.getDecoder().decode(serverDatabase));
+                FileOutputStream databseFile = new FileOutputStream("userData.db");
+                FileWriter writeToFile = new FileWriter("userData.db");
+                databseFile.write(serverdataBase64);
+                DatabaseManager databaseManager = new DatabaseManager();
+                sendToApplication = new UserAccount(serverUserData, serverPassword, validationKey, databaseManager, ivAsBytes);
             }
         }
+        return (sendToApplication);
     }
 
 
