@@ -3,7 +3,7 @@ import base64
 from cryptography.hazmat.primitives import hashes, hmac
 
 
-def hmac(database: str, validation_key: str):
+def perform_hmac(database: str, validation_key: str):
     """
     Utility function to generate an authentication code using HMAC.
     :param database: The database data.

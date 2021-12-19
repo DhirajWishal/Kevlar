@@ -132,7 +132,8 @@ class Database:
         Display all the information stored in the user table.
         :return: None
         """
-        for row in self.connection.execute("SELECT * FROM User"):
+        result = self.connection.execute("SELECT * FROM User")
+        for row in result:
             print(
                 "Username:", row[0],
                 "Password:", row[1],

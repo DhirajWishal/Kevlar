@@ -70,10 +70,12 @@ public class Connector {
     public void sendExistingDataToServer(String userName, String password ,String hMac) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         String userData = userDataToXML(userName, password, hMac);
         Sender sender = new Sender(userData);
+        System.out.println(sender.getResponse());   // TODO
     }
     public void sendNewDataToServer(String userName, String password,String validationKey) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         String userData = newUserDataToXML(userName, password, validationKey);
         Sender sender = new Sender(userData);
+        System.out.println(sender.getResponse());   // TODO
     }
 
 
