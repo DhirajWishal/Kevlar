@@ -354,3 +354,5 @@ MigrationBackup/
 
 # Do not include the generated output directory.
 client/out/
+client/userData.db
+server/Accounts.db
