@@ -49,17 +49,19 @@ public class Connector {
 
     private String newUserDataToXML(String userName, String password, String validationKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         String encodedDatabase = base64TheFile();
+        IvParameterSpec iV=generateIv();
         String userDataXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         userDataXML += "<kevlar mode=\"account\">";
         userDataXML += "<username>" + userName + "</username>";
         userDataXML += "<password>" + password + "</password>>";
         userDataXML += "<database>" + encodedDatabase + "</database>";
         userDataXML += "<validation>" + validationKey + "</validation>";
+        userDataXML += "<iv>"+iV+"<iv>";
         userDataXML += "</kevlar>";
         return userDataXML;
     }
-    //Reference https://www.baeldung.com/java-aes-encryption-decryption
 
+    //Reference https://www.baeldung.com/java-aes-encryption-decryption
     public static IvParameterSpec generateIv() {
 
         byte[] iv = {(byte) 163, (byte) 127, (byte) 43, (byte) 227, 29, (byte) 181, (byte) 193, (byte) 101, (byte) 239, 2, (byte) 211, (byte) 149, (byte) 197, (byte) 37, (byte) 59, (byte) 83};
@@ -67,8 +69,8 @@ public class Connector {
         return new IvParameterSpec(iv);
     }
 
-    public void sendExistingDataToServer(String userName, String password ,String hMac) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
-        String userData = userDataToXML(userName, password, hMac);
+    public void sendExistingDataToServer(String userName, String password ,String validationKey) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+        String userData = userDataToXML(userName, password, validationKey);
         Sender sender = new Sender(userData);
         System.out.println(sender.getResponse());   // TODO
     }
@@ -79,7 +81,7 @@ public class Connector {
     }
 
 
-    //Take validation jey as a parameter
+    //Take validation Key as a parameter
     public Integer checkAccountExist(String userName, String password) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] validationkey = {0}; //temp var
         String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
