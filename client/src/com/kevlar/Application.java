@@ -17,13 +17,11 @@ public class Application {
 	private Connector connector= new Connector();
 	private DatabaseManager dbManager = new DatabaseManager();
 
-
 	/**
 	 * Default constructor.
 	 */
 	public Application() throws Exception {
 		System.out.println("Welcome to Kevlar!");
-		connector.setupConnection();
 	}
 	
 	/**

@@ -15,6 +15,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.*;
@@ -76,43 +77,11 @@ public class Connector {
         return new IvParameterSpec(iv);
     }
 
-    public void setupConnection() {
-        String connectionXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-        connectionXML += "<kevlar mode=\"handshake\">";
-        connectionXML += "</kevlar>";
-        Sender sender = new Sender(connectionXML, false);
-        String response = sender.getResponse();
-        System.out.println(response);
-        response = response.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?><kevlar><key>b'", "");
-        response = response.replace("'</key><iv>[", ",");
-        response = response.replace("]</iv></kevlar>", "");
-
-        String[] payload = response.split(",");
-        byte[] ivData = new byte[payload.length - 1];
-
-        for (int i = 1; i < payload.length; ++i)
-            //ivData[i - 1] = (byte) Integer.parseInt(payload[i].strip());
-            ivData[i - 1] = 0;
-
-        key = payload[0];
-        initializationVectorSpec = new IvParameterSpec(ivData);
-        byte[] byteAES = key.getBytes();
-        byte[] decodedAES = Base64.getDecoder().decode(byteAES);
-        aesKey = new SecretKeySpec(decodedAES, 0, decodedAES.length, "AES");
-    }
-
     public void encryptData(String userName, String password, File database, String hMac) throws NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, InvalidKeyException,
             BadPaddingException, IllegalBlockSizeException, IOException {
         String userData = userDataToXML(userName, password, hMac);
-        byte[] userDataXML = userData.getBytes();
-        // rebuild key using SecretKeySpec
-        SecretKey originalAESKey = new SecretKeySpec(decodedAES, 0, decodedAES.length, "AES/CBC/PKCS5Padding");
-        Cipher cipherMethod = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipherMethod.init(Cipher.ENCRYPT_MODE, originalAESKey, initializationVectorSpec);
-        byte[] cipherData = cipherMethod.doFinal(userDataXML);
-        String ecryptedData = Base64.getEncoder().encodeToString(cipherData);
-        Sender sender = new Sender(ecryptedData, true);
+        Sender sender = new Sender(userData);
     }
 
     //Take validation jey as a parameter
@@ -123,10 +92,7 @@ public class Connector {
         sendData += "<username>" + userName + "</username>";
         sendData += "<password>" + password + "</password>";
         sendData += "</kevlar>";
-        byte[] bytesToSend = encryptAES(sendData);
-        String finalData = Base64.getMimeEncoder().encodeToString(bytesToSend);
-        System.out.println("final data" + " " + finalData);
-        Sender sender = new Sender(finalData, true);
+        Sender sender = new Sender(sendData);
         String serverData = sender.getResponse();
         int responseLength = serverData.length();
         Document xmlDoc = convertStringToXMLDocument(serverData);
@@ -176,17 +142,6 @@ public class Connector {
 
 
     }
-
-    private byte[] encryptAES(String data) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        Cipher cipherMethod = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipherMethod.init(Cipher.ENCRYPT_MODE, aesKey, initializationVectorSpec);
-
-        for (int i = 0; i < data.length() % 256; i++)
-            data = ((byte) 0) + data;
-
-        return cipherMethod.doFinal(data.getBytes(StandardCharsets.UTF_8));
-    }
-
 
     //Reference https://howtodoinjava.com/java/xml/parse-string-to-xml-dom/
     private static Document convertStringToXMLDocument(String xmlString) {
