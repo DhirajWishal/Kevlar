@@ -26,7 +26,7 @@ public class Application {
 	/**
 	 * Run the main application loop.
 	 */
-	public void run() throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+	public void run() throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, IOException {
 		boolean bShouldRun = true;
 		while (bShouldRun) {
 			printLoginMenu();
@@ -67,7 +67,7 @@ public class Application {
 	/**
 	 * Show option after user has logged in.
 	 */
-	public void functionality() {
+	public void functionality() throws NoSuchAlgorithmException, IOException, InvalidKeyException {
 		boolean bShouldRun = true;
 
 		while (bShouldRun) {
@@ -152,7 +152,7 @@ public class Application {
 	 * Login to the kevlar system.
 	 */
 
-	private void login() throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+	private void login() throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, IOException {
 		String masterPassword,userName,base64un,base64mp,base64vk,exit="";
 		Integer checker;
 		boolean bverify;
@@ -212,7 +212,7 @@ public class Application {
 	/**
 	 * Create a new user account.
 	 */
-	private void createAccount() throws InvalidAlgorithmParameterException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+	private void createAccount() throws InvalidAlgorithmParameterException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, IOException {
 		boolean bConfirm = false;
 		Integer checker;
 		String userName,masterPassword,validationKey,base64un,base64mp,base64vk;
@@ -292,7 +292,7 @@ public class Application {
 	/**
 	* Add a new password to the database
 	* */
-	private void addPassword(){
+	private void addPassword() throws NoSuchAlgorithmException, IOException, InvalidKeyException {
 		String title,password,titleUsername,description;
 
 		printSeparator();
@@ -305,7 +305,7 @@ public class Application {
 		password=ValidatePassword.validate("Password");
 		password = userAccount.encrypt(password);
 		userAccount.getDatabaseManager().insertData(title,titleUsername,description,password);
-
+		connector.sendExistingDataToServer(userAccount.getUserName(),userAccount.getMasterPassword(), userAccount.getValidationKey());
 	}
 
 	/**
@@ -326,7 +326,7 @@ public class Application {
 	/**
 	 * Change currently stored password
 	 */
-	private void editpassword(){
+	private void editpassword() throws NoSuchAlgorithmException, IOException, InvalidKeyException {
 		String title,password;
 		boolean bexists;
 
@@ -362,6 +362,7 @@ public class Application {
 		}else{
 			System.out.println("Password change failed invalid account name");
 		}
+		connector.sendExistingDataToServer(userAccount.getUserName(),userAccount.getMasterPassword(), userAccount.getValidationKey());
 	}
 
 	/**
