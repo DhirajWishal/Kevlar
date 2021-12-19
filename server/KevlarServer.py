@@ -52,13 +52,48 @@ class Server(BaseHTTPRequestHandler):
         # Set up the xml parser to walk through the xml tree.
         xml_parser = XMLParser.XMLParser(decoded_data)
 
+        # Handle the check request.
+        if xml_parser.mode == "check":
+            self.handle_check(xml_parser)
+
         # Handle the login request.
-        if xml_parser.mode == "login":
+        elif xml_parser.mode == "login":
             self.handle_login(xml_parser)
 
         # Handle the user account request.
         elif xml_parser.mode == "account":
             self.handle_account(xml_parser)
+
+    def handle_check(self, xml_parser):
+        """
+        Handle the client's check if account exist request.
+        :param xml_parser: The xml parser used to parse the user request.
+        :return: None
+        """
+        username = ""
+        password = ""
+
+        # Walk through the xml tree and gather the required data.
+        for element in xml_parser.tree.getroot():
+            if element.tag == "username":
+                username = element.text
+            elif element.tag == "password":
+                password = element.text
+
+        # Check if the username exists.
+        if self.database.user_exist(username):
+            # If true, check if the passwords match.
+            if self.database.get_password(username) == password:
+                # If yes, we just say that everything is okay.
+                self.write_data(self.packager.generate_status("2"))
+
+            else:
+                # If the passwords don't match, we say that the status is 1 (the passwords mismatch)
+                self.write_data(self.packager.generate_status("1"))
+
+        else:
+            # If the username isn't there in the database, we just send the status code 0.
+            self.write_data(self.packager.generate_status("0"))
 
     def handle_login(self, xml_parser):
         """
@@ -84,19 +119,20 @@ class Server(BaseHTTPRequestHandler):
             if database_password == password:
                 database_database = self.database.get_database(username)
                 validation_key = self.database.get_validation_key(username)
+                initialization_vector = self.database.get_initialization_vector(username)
 
                 # If the password is valid, we can send back the correct account information back to the client.
                 self.write_data(self.packager.generate_account(username, database_password, database_database,
-                                                               CryptoService.hmac(database_database,
-                                                                                  validation_key)))
+                                                               CryptoService.hmac(database_database, validation_key),
+                                                               initialization_vector))
 
             # If the password is invalid, we just send a form with just the username.
             else:
-                self.write_data(self.packager.generate_account(username, "", "", ""))
+                self.write_data(self.packager.generate_account(username, "", "", "", ""))
 
         # If the username does not exist, we send an empty response document.
         else:
-            self.write_data(self.packager.generate_account("", "", "", ""))
+            self.write_data(self.packager.generate_account("", "", "", "", ""))
 
     def handle_account(self, xml_parser):
         """
@@ -109,6 +145,7 @@ class Server(BaseHTTPRequestHandler):
         database = ""
         hmac = ""
         user_validation_key = ""
+        initialization_vector = ""
 
         # Walk through the xml tree and get the required information.
         for element in xml_parser.tree.getroot():
@@ -122,6 +159,8 @@ class Server(BaseHTTPRequestHandler):
                 hmac = element.text
             elif element.tag == "validation":
                 user_validation_key = element.text
+            elif element.tag == "iv":
+                initialization_vector = element.text
 
         # If the user exists, we can proceed to update the account.
         if self.database.user_exist(username):
@@ -147,5 +186,5 @@ class Server(BaseHTTPRequestHandler):
 
             else:
                 # Else, we create a new account and then send a success note.
-                self.database.insert(Account.Account(username, password, user_validation_key, database))
+                self.database.insert(username, password, user_validation_key, database, initialization_vector)
                 self.write_data(self.packager.generate_status("Created user"))

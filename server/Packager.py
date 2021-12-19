@@ -9,13 +9,14 @@ class Packager:
         self.begin_root = "<kevlar>"
         self.end_root = "</kevlar>"
 
-    def generate_account(self, username: str, password: str, database: str, hmac: str):
+    def generate_account(self, username: str, password: str, database: str, hmac: str, initialization_vector: str):
         """
         Generate account document by using the upload-able data.
         :param username: The account username.
         :param password: The account password.
         :param database: The account database.
         :param hmac: The authentication hmac of the database.
+        :param initialization_vector: The initialization vector for that account.
         :return: The xml document.
         """
         document = self.xml_version + self.begin_root
@@ -23,6 +24,7 @@ class Packager:
         document += f"<password>{password}</password>"
         document += f"<database>{database}</database>"
         document += f"<hmac>{hmac}</hmac>"
+        document += f"<iv>{initialization_vector}</iv>"
         return document + self.end_root
 
     def generate_status(self, status: str):

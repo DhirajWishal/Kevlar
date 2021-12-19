@@ -28,25 +28,6 @@ class Database:
 
         self.commit()
 
-    def insert(self, account: Account.Account):
-        """
-        Insert a new user into the database.
-        :param account: The account to insert.
-        :return: Boolean stating if the insertion was successful.
-        """
-        try:
-            self.connection.execute(
-                f"""
-                    INSERT INTO User('username', 'password', 'validation', 'database')
-                    VALUES ('{account.username}', '{account.password}', '{account.validation}', '{account.database}')
-                """)
-
-            self.commit()
-            return True
-
-        except IntegrityError:
-            return False
-
     def insert(self, username: str, password: str, validation: str, database: str, initialization_vector: str):
         """
         Insert a new user into the database.
@@ -129,6 +110,17 @@ class Database:
         :return: The validation key. Returns a null string if it doesn't exist.
         """
         for row in self.connection.execute(f"SELECT validation FROM User WHERE username = '{username}'"):
+            return row
+
+        return ""
+
+    def get_initialization_vector(self, username: str):
+        """
+        Get the initialization vector from the database using the username.
+        :param username: The username of the user.
+        :return: The initialization vector. Returns a null string if it doesn't exist.
+        """
+        for row in self.connection.execute(f"SELECT initializationVector FROM User WHERE username = '{username}'"):
             return row
 
         return ""
