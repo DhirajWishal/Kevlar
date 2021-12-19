@@ -85,10 +85,31 @@ public class Connector {
     }
 
     //Take validation jey as a parameter
-    public Integer sendDataToServer(String userName, String password) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public Integer checkAccountExist(String userName, String password) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] validationkey = {0}; //temp var
         String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-        sendData += "<kevlar mode=\"login\">";
+        sendData += "<kevlar mode=\"check\">";
+        sendData += "<username>" + userName + "</username>";
+        sendData += "<password>" + password + "</password>";
+        sendData += "</kevlar>";
+        Sender sender = new Sender(sendData);
+        String serverData = sender.getResponse();
+        Document xmlDoc = convertStringToXMLDocument(serverData);
+        NodeList kevlarDataByNode = xmlDoc.getElementsByTagName("kevlar");
+        int stausCode = 4;
+        for (int temp = 0; temp < kevlarDataByNode.getLength(); temp++) {
+            Node kevlarNode = kevlarDataByNode.item(temp);
+            if (kevlarNode.getNodeType() == Node.ELEMENT_NODE) {
+                Element kevlarElement = (Element) kevlarNode;
+                stausCode = Integer.parseInt(kevlarElement.getElementsByTagName("status").item(0).getTextContent());
+            }
+        }
+        return (stausCode);
+    }
+
+    public void getUserAccount(String userName, String password, String validationKey) throws NoSuchAlgorithmException, InvalidKeyException {
+        String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+        sendData += "<kevlar mode=\"check\">";
         sendData += "<username>" + userName + "</username>";
         sendData += "<password>" + password + "</password>";
         sendData += "</kevlar>";
@@ -101,6 +122,7 @@ public class Connector {
         String serverPassword = "";
         String serverDatabase = "";
         String serverHMac = "";
+        String serverIV = " ";
         int validationChecker = 4;
         for (int temp = 0; temp < kevlarDataByNode.getLength(); temp++) {
             Node kevlarNode = kevlarDataByNode.item(temp);
@@ -111,12 +133,10 @@ public class Connector {
                 serverPassword = kevlarElement.getElementsByTagName("password").item(0).getTextContent();
                 serverDatabase = kevlarElement.getElementsByTagName("database").item(0).getTextContent();
                 serverHMac = kevlarElement.getElementsByTagName("hmac").item(0).getTextContent();
+                serverIV = kevlarElement.getElementsByTagName("iv").item(0).getTextContent();
             }
-
-            //returns0 if the data is not found in the server
-            if ((serverUserData == "") && (serverPassword == "") && (serverDatabase == "") && (serverHMac == "")) {
-                validationChecker = 0;
-
+            byte[] ivAsBytes = serverIV.getBytes();
+            if ((serverUserData == ""));
                 //returns 1 if the data is found on the server AND matches the user's credentials
             } else if ((password.equals(serverPassword)) && (userName.equals(serverUserData))) {
                 byte[] database64Decoded = Base64.getDecoder().decode(serverDatabase);
@@ -132,14 +152,8 @@ public class Connector {
                     //Data is there in the dataabase "BUT" server hmac and generated hmac is not equal
                     validationChecker = 2;
                 }
-                //returns 2 if the password does not match with the server's password
-            } else if ((!password.equals(serverPassword)) && (userName.equals(serverUserData))) {
-
-                validationChecker = 3;
-            }
         }
         return (validationChecker);
-
 
     }
 
