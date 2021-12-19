@@ -67,8 +67,8 @@ public class Connector {
         return new IvParameterSpec(iv);
     }
 
-    public void sendExistingDataToServer(String userName, String password ,String hMac) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
-        String userData = userDataToXML(userName, password, hMac);
+    public void sendExistingDataToServer(String userName, String password ,String validationKey) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+        String userData = userDataToXML(userName, password, validationKey);
         Sender sender = new Sender(userData);
     }
     public void sendNewDataToServer(String userName, String password,String validationKey) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
@@ -77,7 +77,7 @@ public class Connector {
     }
 
 
-    //Take validation jey as a parameter
+    //Take validation Key as a parameter
     public Integer checkAccountExist(String userName, String password) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] validationkey = {0}; //temp var
         String sendData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
