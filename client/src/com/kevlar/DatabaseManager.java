@@ -34,8 +34,6 @@ public class DatabaseManager {
      * This function creates the SQL table within the SQL database using SQL statements
      */
     public void createTable() {
-        String url = "jdbc:sqlite:userData.db";
-
         // SQL statement for creating a new table with the name kevlarData
         String createSQL = "CREATE TABLE IF NOT EXISTS kevlarData (\n"
                 + "	Title text PRIMARY KEY,\n"
@@ -44,22 +42,22 @@ public class DatabaseManager {
                 + "	Password text NOT NULL \n"
                 + ");";
 
-        try (Connection databaseConnection = DriverManager.getConnection(url);
-             Statement status = databaseConnection.createStatement()) {
+        try (Connection connection = this.sqlConnect();
+             Statement statement = connection.createStatement()) {
             // create a new table
-            status.execute(createSQL);
+            statement.execute(createSQL);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-
     }
 
     /**
      * This function INSERTS data into the SQL table using the input from the user as parameters
-     * @param Title User's Title (The primary key of the table eg:- Google , Email , Discord etc..)
-     * @param userName User's Username to each of the corresponding Titles
+     *
+     * @param Title       User's Title (The primary key of the table eg:- Google , Email , Discord etc..)
+     * @param userName    User's Username to each of the corresponding Titles
      * @param description A small description containing a hint of the password
-     * @param password User's Password for the certain Title
+     * @param password    User's Password for the certain Title
      */
     public void insertData(String Title, String userName, String description, String password) {
         //The SQL statement
@@ -103,6 +101,7 @@ public class DatabaseManager {
 
     /**
      * This function will get the user's Title and return the specific password
+     *
      * @param userTitle The user's desired Title to get the password from
      * @return The corresponding Password
      */
@@ -130,6 +129,7 @@ public class DatabaseManager {
 
     /**
      * This function is to get the username from the title and output the username
+     *
      * @param userTitle User's input for the Title
      * @return The username
      */
@@ -155,6 +155,7 @@ public class DatabaseManager {
 
     /**
      * This fucntion takes the "userData.db" File and turns the whole file into a H mac format
+     *
      * @param validation User's Validation key
      * @return The base64 encoded File
      * @throws IOException
@@ -178,7 +179,12 @@ public class DatabaseManager {
         return finalHMACKey;
     }
 
-
+    /**
+     * This function creates a new file and then Base64 encodes the whole file and returns it
+     *
+     * @return The file converted to binary data
+     * @throws IOException
+     */
     public static String base64TheFile() throws IOException {
         File dataBaseFile = new File("userData.db");
         byte[] databaseFileBytes = Files.readAllBytes(Paths.get(String.valueOf(dataBaseFile)));
@@ -186,6 +192,13 @@ public class DatabaseManager {
         return base64File;
     }
 
+    /**
+     * Checks if the user's password is matching with the database stored in the database
+     *
+     * @param title    The Title used to check for which one they need the password for
+     * @param password Password entered by the user
+     * @return Boolean validity , True if the password is there in the database, False if password is not found
+     */
     public Boolean checkForPassword(String title, String password) {
         String sqlQuery = "SELECT password FROM kevlarData " +
                 "WHERE Title=\"" + title + "\"";
@@ -195,6 +208,7 @@ public class DatabaseManager {
             ResultSet results = statement.executeQuery(sqlQuery);
             while (results.next()) {
                 String databasePassword = results.getString("password");
+                //compares the Database password and the password entered by the user
                 if (databasePassword.equals(password)) {
                     validity = true;
                     return (validity);
@@ -206,6 +220,13 @@ public class DatabaseManager {
         return validity;
     }
 
+    /**
+     * This function changes the password stored in the database to another one
+     *
+     * @param title       The title the password belongs to
+     * @param newPassword The new password replacing the old password
+     */
+
     public void changePassword(String title, String newPassword) {
         String sqlQuery = "UPDATE kevlarData " +
                 "SET password=\"" + newPassword + "\"" +
@@ -213,6 +234,7 @@ public class DatabaseManager {
 
         try (Connection connection = this.sqlConnect();
              PreparedStatement statement = connection.prepareStatement(sqlQuery)) {
+            //Executes the statement
             statement.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -220,6 +242,12 @@ public class DatabaseManager {
 
     }
 
+    /**
+     * This function will output all the titles stored in the Database
+     *
+     * @param title Title 
+     * @return
+     */
     public Boolean checkForTitle(String title) {
         String sqlQuery = "SELECT Title FROM kevlarData";
         Boolean validity = false;
