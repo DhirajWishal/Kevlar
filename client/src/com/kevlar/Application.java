@@ -29,6 +29,7 @@ public class Application {
 	public void run() throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
 		boolean bShouldRun = true;
 		while (bShouldRun) {
+			printLoginMenu();
 			switch (getCommand()) {
 				case 1:
 					login();
@@ -40,7 +41,6 @@ public class Application {
 
 				case 0:
 					bShouldRun = false;
-					printLoginMenu();
 					try {
 						userAccount.getDatabaseManager().deleteData();
 					}catch (SQLException e){
@@ -202,7 +202,7 @@ public class Application {
 			base64un= Base64.getEncoder().encodeToString(userName.getBytes());
 			base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
 			try {
-				thulana=connector.userDataToXML(base64un, base64mp, base64vk);
+				connector.sendExistingDataToServer(base64un, base64mp, base64vk);
 			} catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
 				System.out.println(e.getMessage());
 			}
@@ -237,14 +237,13 @@ public class Application {
 		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
 		base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
 		base64vk= Base64.getEncoder().encodeToString(validationKey.getBytes());
-
+		userAccount.getDatabaseManager().createTable();
 		try {
-			connector.newUserDataToXML(base64un, base64mp, base64vk);
+			connector.sendNewDataToServer(base64un, base64mp,base64vk);
 		}catch(IOException | NoSuchAlgorithmException | InvalidKeyException e){
 			System.out.println(e.getMessage());
 		}
 
-		userAccount.getDatabaseManager().createDatabase();
 		userAccount.getDatabaseManager().createTable();
 		functionality();
 	}
