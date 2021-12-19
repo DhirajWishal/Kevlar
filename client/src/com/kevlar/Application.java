@@ -157,7 +157,7 @@ public class Application {
 	 */
 
 	private void login() throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
-		String masterPassword,userName,base64un,base64mp,base64vk,exit="",thulana;
+		String masterPassword,userName,base64un,base64mp,base64vk,exit="";
 		Integer checker;
 		boolean bverify;
 
@@ -215,8 +215,9 @@ public class Application {
 	/**
 	 * Create a new user account.
 	 */
-	private void createAccount() {
+	private void createAccount() throws InvalidAlgorithmParameterException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
 		boolean bConfirm = false;
+		Integer checker;
 		String userName,masterPassword,validationKey,base64un,base64mp,base64vk;
 
 		printSeparator();
@@ -226,6 +227,20 @@ public class Application {
 			System.out.println("\nPlease enter a Username between 5 and 30 characters: ");
 			userName = scanner.nextLine();
 		}
+		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
+		checker=connector.checkAccountExist(base64un,"");
+		while (checker==0){
+			System.out.println("\n"+userName+" already exists! please re:enter new username ");
+			userName = scanner.nextLine();
+			while (userName.length() < 5 || userName.length() > 30) {
+				System.out.println("\nPlease enter a Username between 5 and 30 characters: ");
+				userName = scanner.nextLine();
+			}
+			base64un= Base64.getEncoder().encodeToString(userName.getBytes());
+			checker=connector.checkAccountExist(base64un,"");
+
+		}
+
 		masterPassword=ValidatePassword.validate("Master Password");
 		System.out.println("\nA validation key is required to further the integrity of your password..");
 		validationKey=ValidatePassword.validate("Validation key");
@@ -234,7 +249,7 @@ public class Application {
 		userAccount = new UserAccount(userName,masterPassword,validationKey);
 
 		//encode in base64 and send to server
-		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
+
 		base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
 		base64vk= Base64.getEncoder().encodeToString(validationKey.getBytes());
 		userAccount.getDatabaseManager().createTable();
@@ -363,7 +378,7 @@ public class Application {
 		while(true){
 			switch (checker){
 				case 0:
-					System.out.println("Do you wish to create a new Account instead?(Yes/No/Y/N)");
+					System.out.println("Account does not exists do you perhaps wish to create a new Account instead?(Yes/No/Y/N)");
 					leaver=scanner.nextLine();
 					if(leaver.equalsIgnoreCase("yes") || leaver.equalsIgnoreCase("y")){
 						return false;
@@ -388,7 +403,7 @@ public class Application {
 					checker=connector.checkAccountExist(base64un,base64mp);
 					break;
 				case 1:
-					System.out.println("Do you wish to create a new Account instead?(Yes/No/Y/N)");
+					System.out.println("Invalid password entered do you wish to create a new Account instead?(Yes/No/Y/N)");
 					leaver=scanner.nextLine();
 					if(leaver.equalsIgnoreCase("yes") || leaver.equalsIgnoreCase("y")){
 						return false;
