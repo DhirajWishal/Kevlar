@@ -90,7 +90,7 @@ class Database:
         :return: The password. Returns a null string if it doesn't exist.
         """
         for row in self.connection.execute(f"SELECT password FROM User WHERE username = '{username}'"):
-            return row
+            return row[0]
 
         return ""
 
@@ -101,7 +101,7 @@ class Database:
         :return: The database. Returns a null string if it doesn't exist.
         """
         for row in self.connection.execute(f"SELECT database FROM User WHERE username = '{username}'"):
-            return row
+            return row[0]
 
         return ""
 
@@ -112,7 +112,7 @@ class Database:
         :return: The validation key. Returns a null string if it doesn't exist.
         """
         for row in self.connection.execute(f"SELECT validation FROM User WHERE username = '{username}'"):
-            return row
+            return row[0]
 
         return ""
 
@@ -123,7 +123,7 @@ class Database:
         :return: The initialization vector. Returns a null string if it doesn't exist.
         """
         for row in self.connection.execute(f"SELECT initializationVector FROM User WHERE username = '{username}'"):
-            return row
+            return row[0]
 
         return ""
 

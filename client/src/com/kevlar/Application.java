@@ -250,7 +250,7 @@ public class Application {
 		base64vk= Base64.getEncoder().encodeToString(validationKey.getBytes());
 		userAccount.getDatabaseManager().createTable();
 		try {
-			connector.sendNewDataToServer(base64un, base64mp,base64vk);
+			connector.sendNewDataToServer(base64un, base64mp,base64vk, Base64.getEncoder().encodeToString(userAccount.getInitializationVector().getIV()));
 		}catch(IOException | NoSuchAlgorithmException | InvalidKeyException e){
 			System.out.println(e.getMessage());
 		}

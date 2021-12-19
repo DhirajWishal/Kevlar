@@ -47,16 +47,15 @@ public class Connector {
         return userDataXML;
     }
 
-    private String newUserDataToXML(String userName, String password, String validationKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+    private String newUserDataToXML(String userName, String password, String validationKey, String ivData) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         String encodedDatabase = base64TheFile();
-        IvParameterSpec iV=generateIv();
         String userDataXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         userDataXML += "<kevlar mode=\"account\">";
         userDataXML += "<username>" + userName + "</username>";
         userDataXML += "<password>" + password + "</password>";
         userDataXML += "<database>" + encodedDatabase + "</database>";
         userDataXML += "<validation>" + validationKey + "</validation>";
-        userDataXML += "<iv>"+iV+"</iv>";
+        userDataXML += "<iv>"+ivData+"</iv>";
         userDataXML += "</kevlar>";
         return userDataXML;
     }
@@ -74,8 +73,8 @@ public class Connector {
         Sender sender = new Sender(userData);
         System.out.println(sender.getResponse());   // TODO
     }
-    public void sendNewDataToServer(String userName, String password,String validationKey) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
-        String userData = newUserDataToXML(userName, password, validationKey);
+    public void sendNewDataToServer(String userName, String password,String validationKey, String ivData) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+        String userData = newUserDataToXML(userName, password, validationKey, ivData);
         Sender sender = new Sender(userData);
         System.out.println(sender.getResponse());   // TODO
     }
@@ -91,6 +90,7 @@ public class Connector {
         sendData += "</kevlar>";
         Sender sender = new Sender(sendData);
         String serverData = sender.getResponse();
+        System.out.println(serverData);
         Document xmlDoc = convertStringToXMLDocument(serverData);
         NodeList kevlarDataByNode = xmlDoc.getElementsByTagName("kevlar");
         int stausCode = 4;

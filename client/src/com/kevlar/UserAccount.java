@@ -30,7 +30,7 @@ public class UserAccount {
         this.masterPassword = mp;
         this.validationKey = vk;
         this.databaseManager = new DatabaseManager();
-        byte[] iv = {(byte) 163, (byte) 127, (byte) 43, (byte) 227, 29, (byte) 181, (byte) 193, (byte) 101, (byte) 239, 2, (byte) 211, (byte) 149, (byte) 197, (byte) 37, (byte) 59, (byte) 83};
+        byte[] iv = new byte[16];
         new SecureRandom().nextBytes(iv);
         this.initializationVectorSpec = new IvParameterSpec(iv);
     }
