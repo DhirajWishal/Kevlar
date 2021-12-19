@@ -164,6 +164,7 @@ public class Application {
 
 		System.out.println("\nEnter Master Password: ");
 		masterPassword = passwordIO.getInput();
+		passwordIO = new PasswordIO();
 		masterPassword = Hasher.getSHA256(masterPassword);
 
 		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
@@ -226,6 +227,7 @@ public class Application {
 
 		System.out.println("Enter Your Master Password: ");
 		masterPassword=passwordIO.getInput();
+		passwordIO = new PasswordIO();
 		System.out.println("\nA validation key is required to further the integrity of your password..");
 		validationKey=passwordIO.getInput();
 		masterPassword=Hasher.getSHA256(masterPassword);
@@ -345,8 +347,9 @@ public class Application {
 	/**
 	 * verify password and username & check if they are there
 	 */
-	public boolean verifyLogin(Integer checker,String userName,String masterPassword) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+	public boolean verifyLogin(Integer checker,String userName,String masterPassword) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, IOException {
 		String base64un,base64mp,leaver;
+		PasswordIO passwordIO = new PasswordIO();
 
 		base64un= Base64.getEncoder().encodeToString(userName.getBytes());
 		base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
@@ -366,11 +369,8 @@ public class Application {
 					}
 
 					System.out.println("\nEnter Master Password: ");
-					masterPassword = scanner.nextLine();
-					while (masterPassword.length() < 8 || masterPassword.length() > 30) {
-						System.out.println("\nPlease enter a Master Password between 8 and 30 characters: ");
-						masterPassword = scanner.nextLine();
-					}
+					masterPassword = passwordIO.getInput();
+					passwordIO = new PasswordIO();
 					masterPassword = Hasher.getSHA256(masterPassword);
 
 					base64un= Base64.getEncoder().encodeToString(userName.getBytes());
@@ -384,7 +384,7 @@ public class Application {
 						return false;
 					}
 					System.out.println("\nInvalid password entered please Re-enter password!");
-					masterPassword=scanner.nextLine();
+					masterPassword=passwordIO.getInput();
 					masterPassword = Hasher.getSHA256(masterPassword);
 					base64mp= Base64.getEncoder().encodeToString(masterPassword.getBytes());
 					checker=connector.checkAccountExist(base64un,base64mp);
