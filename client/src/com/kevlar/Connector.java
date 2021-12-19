@@ -53,10 +53,10 @@ public class Connector {
         String userDataXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         userDataXML += "<kevlar mode=\"account\">";
         userDataXML += "<username>" + userName + "</username>";
-        userDataXML += "<password>" + password + "</password>>";
+        userDataXML += "<password>" + password + "</password>";
         userDataXML += "<database>" + encodedDatabase + "</database>";
         userDataXML += "<validation>" + validationKey + "</validation>";
-        userDataXML += "<iv>"+iV+"<iv>";
+        userDataXML += "<iv>"+iV+"</iv>";
         userDataXML += "</kevlar>";
         return userDataXML;
     }
