@@ -269,7 +269,7 @@ public class DatabaseManager {
     /**
      * Deletes the whole "userData.db" file after using it
      */
-    public void deleteData() {
+    public static void deleteData() {
         String status = " ";
         File dataBaseFile = new File("userData.db");
         if (dataBaseFile.delete()) {
