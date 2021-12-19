@@ -1,8 +1,6 @@
 import sqlite3
 from sqlite3 import IntegrityError
 
-import Account
-
 
 class Database:
     """
