@@ -6,16 +6,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import javax.crypto.Cipher;
+
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.*;
 import java.util.Base64;
 
@@ -30,7 +27,6 @@ public class Connector {
     private IvParameterSpec initializationVectorSpec;
 
 
-
     /**
      * the default constructor
      */
@@ -38,11 +34,11 @@ public class Connector {
     }
 
 
-    public String userDataToXML(String userName, String password, String validationKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+    private String userDataToXML(String userName, String password, String validationKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         String encodedDatabase = base64TheFile();
         String hMac = getHmac(validationKey);
         String userDataXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-        userDataXML += "<kevlar mode=\"account\">";
+        userDataXML += "<kevlar mode=\"update\">";
         userDataXML += "<username>" + userName + "</username>";
         userDataXML += "<password>" + password + "</password>>";
         userDataXML += "<database>" + encodedDatabase + "</database>";
@@ -51,7 +47,7 @@ public class Connector {
         return userDataXML;
     }
 
-    public String newUserDataToXML(String userName, String password, String validationKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+    private String newUserDataToXML(String userName, String password, String validationKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         String encodedDatabase = base64TheFile();
         String userDataXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         userDataXML += "<kevlar mode=\"account\">";
@@ -71,12 +67,15 @@ public class Connector {
         return new IvParameterSpec(iv);
     }
 
-    public void encryptData(String userName, String password, File database, String hMac) throws NoSuchPaddingException, NoSuchAlgorithmException,
-            InvalidAlgorithmParameterException, InvalidKeyException,
-            BadPaddingException, IllegalBlockSizeException, IOException {
+    public void sendExistingDataToServer(String userName, String password, File database, String hMac) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         String userData = userDataToXML(userName, password, hMac);
         Sender sender = new Sender(userData);
     }
+    public void sendNewDataToServer(String userName, String password, File database,String validationKey) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+        String userData = newUserDataToXML(userName, password, validationKey);
+        Sender sender = new Sender(userData);
+    }
+
 
     //Take validation jey as a parameter
     public Integer checkAccountExist(String userName, String password) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
