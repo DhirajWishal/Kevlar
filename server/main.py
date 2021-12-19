@@ -1,5 +1,3 @@
-# Python 3 server example
-import os
 import random
 import ssl
 from http.server import HTTPServer
@@ -17,15 +15,15 @@ if __name__ == "__main__":
     certificate = certificates[index]
     key = keys[index]
 
-    webServer = HTTPServer((hostName, serverPort), KevlarServer.Server)
+    server = HTTPServer((hostName, serverPort), KevlarServer.Server)
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain(certfile=certificate, keyfile=key)
-    webServer.socket = context.wrap_socket(webServer.socket, server_side=True)
+    server.socket = context.wrap_socket(server.socket, server_side=True)
 
     try:
-        webServer.serve_forever()
+        server.serve_forever()
     except KeyboardInterrupt:
         pass
 
-    webServer.server_close()
+    server.server_close()
     print("Server stopped.")

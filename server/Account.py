@@ -1,3 +1,6 @@
+import os
+
+
 class Account:
     """
     Account class.
@@ -9,3 +12,4 @@ class Account:
         self.password = password
         self.validation = validation
         self.database = database
+        self.initialization_vector = os.urandom(16)
