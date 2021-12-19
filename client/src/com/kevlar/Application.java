@@ -15,7 +15,6 @@ public class Application {
 	private Scanner scanner = new Scanner(System.in);
 	private UserAccount userAccount;
 	private Connector connector= new Connector();
-	private DatabaseManager dbManager = new DatabaseManager();
 
 	/**
 	 * Default constructor.
@@ -43,9 +42,9 @@ public class Application {
 					bShouldRun = false;
 					printLoginMenu();
 					try {
-						dbManager.deleteData();
+						userAccount.getDatabaseManager().deleteData();
 					}catch (SQLException e){
-						System.out.println("previous database not deleted!!");
+						System.out.println("User did not login or create account..");
 					}
 					break;
 
@@ -79,7 +78,7 @@ public class Application {
 			printSeparator();
 			System.out.println("Title     Description");
 			printSeparator();
-			dbManager.getTitleDescription();
+			userAccount.getDatabaseManager().getTitleDescription();
 			printSeparator();
 			System.out.println("\n");
 			printFunctionalMenu();
@@ -245,8 +244,8 @@ public class Application {
 			System.out.println(e.getMessage());
 		}
 
-		dbManager.createDatabase();
-		dbManager.createTable();
+		userAccount.getDatabaseManager().createDatabase();
+		userAccount.getDatabaseManager().createTable();
 		functionality();
 	}
 
@@ -261,13 +260,13 @@ public class Application {
 		printSeparator();
 		System.out.println("Which account password would you like to view?");
 		title=scanner.nextLine();
-		username=dbManager.getUserName(title);
+		username=userAccount.getDatabaseManager().getUserName(title);
 		while (username==null && !title.equals("-1")){
 			System.out.println("Please enter an appropriate account title(-1 to exit)");
 			title=scanner.nextLine();
-			username=dbManager.getUserName(title);
+			username=userAccount.getDatabaseManager().getUserName(title);
 		}
-		password= dbManager.getPassword(title);
+		password= userAccount.getDatabaseManager().getPassword(title);
 		if (password != null){
 			password=userAccount.decrypt(password);
 			System.out.println("Your Username: "+username);
@@ -294,7 +293,7 @@ public class Application {
 		titleUsername= scanner.nextLine();
 		password=ValidatePassword.validate("Password");
 		password = userAccount.encrypt(password);
-		dbManager.insertData(title,titleUsername,description,password);
+		userAccount.getDatabaseManager().insertData(title,titleUsername,description,password);
 
 	}
 
@@ -323,27 +322,27 @@ public class Application {
 		printSeparator();
 		System.out.println("Which account password do you wish to change?: ");
 		title=scanner.nextLine();
-		bexists=dbManager.checkForTitle(title);
+		bexists=userAccount.getDatabaseManager().checkForTitle(title);
 		while (bexists==false && !title.equals("-1")){
 			System.out.println("Please enter proper account name!(-1 to exit)");
 			title=scanner.nextLine();
-			bexists=dbManager.checkForTitle(title);
+			bexists=userAccount.getDatabaseManager().checkForTitle(title);
 		}
 		if (!title.equals("-1")) {
 			System.out.println("Type in previously entered password: ");
 			password = scanner.nextLine();
 			password=userAccount.encrypt(password);
-			bexists = dbManager.checkForPassword(title, password);
+			bexists = userAccount.getDatabaseManager().checkForPassword(title, password);
 			while (bexists==false && !password.equals("-1")){
 				System.out.println("Password incorrect Re-Enter!(-1 to exit)");
 				password=scanner.nextLine();
 				password=userAccount.encrypt(password);
-				bexists = dbManager.checkForPassword(title, password);
+				bexists = userAccount.getDatabaseManager().checkForPassword(title, password);
 			}
 			if (!password.equals("-1")){
 				password=ValidatePassword.validate("new Password");
 				password=userAccount.encrypt(password);
-				dbManager.changePassword(title,password);
+				userAccount.getDatabaseManager().changePassword(title,password);
 				System.out.println("Password changed successfully!!");
 			}else{
 				System.out.println("Password change failed User could not remember past password");
