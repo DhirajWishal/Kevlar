@@ -67,8 +67,9 @@ public class Sender {
             char[] buffer = new char[toCopy];
             bufferedReader.read(buffer, 0, toCopy);
             response = String.valueOf(buffer);
-        } catch (IOException | GeneralSecurityException ex) {
-            ex.printStackTrace();
+        } catch (IOException | GeneralSecurityException error) {
+            System.err.println("Something went wrong! Are you sure that the server is up and running?");
+            System.err.println("The error is: " + error);
         }
     }
 
