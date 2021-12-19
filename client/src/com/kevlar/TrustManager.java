@@ -49,7 +49,7 @@ public class TrustManager implements X509TrustManager {
      *
      * @param certs    The certificates to check.
      * @param authType The authentication type.
-     * @throws CertificateException This method can throw an certification exception if all the certificates are not trusted.
+     * @throws CertificateException This method can throw a certification exception if all the certificates are not trusted.
      */
     public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
         for (X509Certificate certificate : certs)
@@ -64,7 +64,7 @@ public class TrustManager implements X509TrustManager {
      *
      * @param certs    The certificates to check.
      * @param authType The authentication type.
-     * @throws CertificateException This method can throw an certification exception if all the certificates are not trusted.
+     * @throws CertificateException This method can throw a certification exception if all the certificates are not trusted.
      */
     public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
         for (X509Certificate certificate : certs)

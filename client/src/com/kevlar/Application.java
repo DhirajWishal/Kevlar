@@ -41,11 +41,7 @@ public class Application {
 
 				case 0:
 					bShouldRun = false;
-					try {
-						userAccount.getDatabaseManager().deleteData();
-					}catch (SQLException e){
-						System.out.println("User did not login or create account..");
-					}
+					userAccount.getDatabaseManager().deleteData();
 					break;
 
 				default:

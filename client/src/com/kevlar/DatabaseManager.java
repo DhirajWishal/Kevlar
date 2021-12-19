@@ -8,11 +8,9 @@ import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
-import java.io.File;  // Import the File class
+import java.io.File;
 import java.util.Base64;
-import java.util.Scanner;
 
-// Specify the filename
 
 public class DatabaseManager {
     /**
@@ -158,9 +156,9 @@ public class DatabaseManager {
      *
      * @param validation User's Validation key
      * @return The base64 encoded File
-     * @throws IOException
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeyException
+     * @throws IOException              Makes sure no error is thrown when .readAllBytes is used
+     * @throws NoSuchAlgorithmException Makes sure when the data is requested and its available
+     * @throws InvalidKeyException      makes sure the key is correct and not in a wrong length
      */
     public static String getHmac(String validation) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         //Reads the file
@@ -243,10 +241,10 @@ public class DatabaseManager {
     }
 
     /**
-     * This function will output all the titles stored in the Database
+     * This function will search for a Title entered by user
      *
-     * @param title Title 
-     * @return
+     * @param title Title entered by user to search for the title
+     * @return validity Returns TRUE if the title is found or FALSE if not found
      */
     public Boolean checkForTitle(String title) {
         String sqlQuery = "SELECT Title FROM kevlarData";
@@ -255,6 +253,7 @@ public class DatabaseManager {
             Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(sqlQuery);
             while (results.next()) {
+                //checks if there is any similar values
                 String databaseTitle = results.getString("Title");
                 if (databaseTitle.equals(title)) {
                     validity = true;
@@ -267,13 +266,16 @@ public class DatabaseManager {
         return validity;
     }
 
-    public void deleteData() throws SQLException {
-        String sqlQuery = "DELETE FROM kevlarData";
-        try (Connection connection = this.sqlConnect()) {
-            PreparedStatement statement = connection.prepareStatement(sqlQuery);
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+    /**
+     * Deletes the whole "userData.db" file after using it
+     */
+    public void deleteData() {
+        String status = " ";
+        File dataBaseFile = new File("userData.db");
+        if (dataBaseFile.delete()) {
+            status = ("Deleted the file ");
+        } else {
+            status = ("failed to delete the file ");
         }
 
     }
