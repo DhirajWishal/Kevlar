@@ -4,6 +4,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -306,7 +307,8 @@ public class Application {
 		password=ValidatePassword.validate("Password");
 		password = userAccount.encrypt(password);
 		userAccount.getDatabaseManager().insertData(title,titleUsername,description,password);
-		connector.sendExistingDataToServer(userAccount.getUserName(),userAccount.getMasterPassword(), userAccount.getValidationKey());
+
+		connector.sendExistingDataToServer(Base64.getEncoder().encodeToString(userAccount.getUserName().getBytes()),Base64.getEncoder().encodeToString(userAccount.getMasterPassword().getBytes()), Base64.getEncoder().encodeToString(userAccount.getValidationKey().getBytes()));
 	}
 
 	/**
@@ -363,7 +365,7 @@ public class Application {
 		}else{
 			System.out.println("Password change failed invalid account name");
 		}
-		connector.sendExistingDataToServer(userAccount.getUserName(),userAccount.getMasterPassword(), userAccount.getValidationKey());
+		connector.sendExistingDataToServer(Base64.getEncoder().encodeToString(userAccount.getUserName().getBytes()),Base64.getEncoder().encodeToString(userAccount.getMasterPassword().getBytes()), Base64.getEncoder().encodeToString(userAccount.getValidationKey().getBytes()));
 	}
 
 	/**
