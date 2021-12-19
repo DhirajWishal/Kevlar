@@ -31,31 +31,6 @@ public class DatabaseManager {
     }
 
     /**
-     * This function creates the database using SQL for the tables to exist
-     */
-    public void createDatabase() {
-        Connection connection = this.sqlConnect();
-        try {
-            // db parameters
-            String url = "jdbc:sqlite:userData.db";
-            // create a connection to the database
-            connection = DriverManager.getConnection(url);
-
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
-        }
-    }
-
-    /**
      * This function creates the SQL table within the SQL database using SQL statements
      */
     public void createTable() {

@@ -33,12 +33,6 @@ public class Connector {
     }
 
 
-    /**
-     * Takes the userInput and converts them to the XML format
-     *
-     * @param userName User's Username
-     * @param password User's password
-     */
     private String key = "";
     private byte[] decodedAES;
     private SecretKey aesKey;
@@ -136,26 +130,20 @@ public class Connector {
                 serverIV = kevlarElement.getElementsByTagName("iv").item(0).getTextContent();
             }
             byte[] ivAsBytes = serverIV.getBytes();
-            if ((serverUserData == ""));
-                //returns 1 if the data is found on the server AND matches the user's credentials
-            } else if ((password.equals(serverPassword)) && (userName.equals(serverUserData))) {
-                byte[] database64Decoded = Base64.getDecoder().decode(serverDatabase);
-                SecretKeySpec secretKeySpec = new SecretKeySpec(validationkey, "SHA-256");
-                Mac mac = Mac.getInstance("SHA-256");
-                mac.init(secretKeySpec);
-                byte[] byteHmac = mac.doFinal(database64Decoded);
-                String finalHMACKey = Base64.getEncoder().encodeToString(byteHmac);
-                if (finalHMACKey.equals(serverHMac)) {
-                    //Data is there in the database "AND" server hmac and generated hmac is equal
-                    validationChecker = 1;
-                } else {
-                    //Data is there in the dataabase "BUT" server hmac and generated hmac is not equal
-                    validationChecker = 2;
-                }
-        }
-        return (validationChecker);
+            byte[] validationBytes = validationKey.getBytes();
+            byte[] database64Decoded = Base64.getDecoder().decode(serverDatabase);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(validationBytes, "SHA-256");
+            Mac mac = Mac.getInstance("SHA-256");
+            mac.init(secretKeySpec);
+            byte[] byteHmac = mac.doFinal(database64Decoded);
+            String finalHMACKey = Base64.getEncoder().encodeToString(byteHmac);
+            if (finalHMACKey.equals(serverHMac)) {
+                File databsaeFile = new File("userData.db");
 
+            }
+        }
     }
+
 
     //Reference https://howtodoinjava.com/java/xml/parse-string-to-xml-dom/
     private static Document convertStringToXMLDocument(String xmlString) {
