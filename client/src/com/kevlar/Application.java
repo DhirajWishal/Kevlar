@@ -246,7 +246,7 @@ public class Application {
      * Index and decrypt a password.
      */
     private void viewPassword() throws IOException {
-        String title, password, username, displayValues;
+        String title, password, username;
 
         printSeparator();
         System.out.println("Which account password would you like to view?");
@@ -260,8 +260,8 @@ public class Application {
         password = userAccount.getDatabaseManager().getPassword(title);
         if (password != null) {
             password = userAccount.decrypt(password);
-            displayValues = "Your Username: " + username + "\n" + "Your Password: " + password;
-            PasswordIO.setOutput(displayValues);
+			System.out.println("Your Username: " + username );
+            PasswordIO.setOutput(password);
         } else {
             System.out.println("Exiting view password...");
         }
