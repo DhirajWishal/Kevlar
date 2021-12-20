@@ -361,7 +361,9 @@ public class Application {
             return;
         }
 
+
         // Get the new password.
+        System.out.println();
         System.out.println("Enter new master password.");
         String newMasterPassword = Hasher.getSHA256(PasswordIO.getInput());
 
