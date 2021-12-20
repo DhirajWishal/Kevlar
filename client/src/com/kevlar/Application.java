@@ -90,6 +90,10 @@ public class Application {
                     editpassword();
                     break;
 
+                case 4:
+                    editMasterPassword();
+                    break;
+
                 case 0:
                     bShouldRun = false;
                     userAccount = null;
@@ -110,7 +114,8 @@ public class Application {
         System.out.println("Available commands: ");
         System.out.println("1. View Password.");
         System.out.println("2. Add new password.");
-        System.out.println("3. Change a stored password");
+        System.out.println("3. Change a stored password.");
+        System.out.println("4. Change Master Password.");
         System.out.println("0. Logout of application.");
         printSeparator();
     }
@@ -335,6 +340,12 @@ public class Application {
                 Base64.getEncoder().encodeToString(userAccount.getValidationKey().getBytes()));
     }
 
+    /**
+     * Change the current master password
+     */
+    public void editMasterPassword(){
+        
+    }
     /**
      * verify password and username & check if they are there
      */
