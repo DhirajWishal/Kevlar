@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Scanner;
 
@@ -189,9 +190,12 @@ public class Application {
             } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
                 System.out.println(e.getMessage());
             }
-            functionality();
-        }
 
+            if (userAccount != null)
+                functionality();
+            else
+                System.out.println("Invalid login!");
+        }
     }
 
     /**
@@ -265,7 +269,7 @@ public class Application {
         password = userAccount.getDatabaseManager().getPassword(title);
         if (password != null) {
             password = userAccount.decrypt(password);
-			System.out.println("Your Username: " + username );
+            System.out.println("Your Username: " + username);
             PasswordIO.setOutput(password);
         } else {
             System.out.println("Exiting view password...");
@@ -343,9 +347,33 @@ public class Application {
     /**
      * Change the current master password
      */
-    public void editMasterPassword(){
-        
+    public void editMasterPassword() throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+        ArrayList<String> titles = userAccount.getDatabaseManager().queryTitles();
+
+        // Get the new master password.
+        System.out.println("Enter new master password.");
+        String newMasterPassword = Hasher.getSHA256(PasswordIO.getInput());
+
+        // Iterate through the existing records.
+        for (String title : titles) {
+            // Get the old password.
+            String oldPassword = userAccount.getDatabaseManager().getPassword(title);
+
+            // Decrypt the old password using the old master key, and then encrypt it again using the new key.
+            String newPassword = UserAccount.encryptOnce(userAccount.decrypt(oldPassword), userAccount.getUserName(),
+                    newMasterPassword, userAccount.getInitializationVector());
+
+            // Update the database.
+            userAccount.getDatabaseManager().changePassword(title, newPassword);
+        }
+
+        // Set the master password and notify the server.
+        userAccount.setMasterPassword(newMasterPassword);
+        connector.sendExistingDataToServer(Base64.getEncoder().encodeToString(userAccount.getUserName().getBytes()),
+                Base64.getEncoder().encodeToString(userAccount.getMasterPassword().getBytes()),
+                Base64.getEncoder().encodeToString(userAccount.getValidationKey().getBytes()));
     }
+
     /**
      * verify password and username & check if they are there
      */

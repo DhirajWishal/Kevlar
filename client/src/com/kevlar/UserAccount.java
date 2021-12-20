@@ -13,7 +13,7 @@ import java.util.Base64;
 
 public class UserAccount {
     private final String userName;
-    private final String masterPassword;
+    private String masterPassword;
     private String validationKey;
     private DatabaseManager databaseManager;
     private final IvParameterSpec initializationVectorSpec;
@@ -75,6 +75,15 @@ public class UserAccount {
      */
     public String getUserName() {
         return this.userName;
+    }
+
+    /**
+     * Set another master password to the user.
+     *
+     * @param masterPassword The master password to set.
+     */
+    public void setMasterPassword(String masterPassword) {
+        this.masterPassword = masterPassword;
     }
 
     /**
@@ -167,6 +176,32 @@ public class UserAccount {
             return new String(cipher.doFinal(Base64.getDecoder().decode(password)), StandardCharsets.UTF_8);
         } catch (Exception e) {
             System.out.println("Error while decrypting: " + e);
+        }
+        return null;
+    }
+
+    /**
+     * Encrypt a block of data once.
+     *
+     * @param password                 The password to encrypt.
+     * @param userName                 The username.
+     * @param masterPassword           The master password to encrypt with.
+     * @param initializationVectorSpec The initialization vector.
+     * @return The returning encrypted string.
+     */
+    public static String encryptOnce(String password, String userName, String masterPassword, IvParameterSpec initializationVectorSpec) {
+        try {
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+
+            KeySpec spec = new PBEKeySpec(masterPassword.toCharArray(), userName.getBytes(), 65536, 256);
+            SecretKey tmp = factory.generateSecret(spec);
+            SecretKeySpec secretKey = new SecretKeySpec(tmp.getEncoded(), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, initializationVectorSpec);
+            return Base64.getEncoder().encodeToString(cipher.doFinal(password.getBytes(StandardCharsets.UTF_8)));
+        } catch (Exception e) {
+            System.out.println("Error while encrypting: " + e);
         }
         return null;
     }
