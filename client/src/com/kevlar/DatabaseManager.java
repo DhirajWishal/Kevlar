@@ -9,6 +9,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Base64;
 
 
@@ -93,6 +94,27 @@ public class DatabaseManager {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    /**
+     * Get all the titles in the database.
+     *
+     * @return The title list.
+     */
+    public ArrayList<String> queryTitles() {
+        String sqlQuery = "SELECT Title FROM kevlarData";
+        ArrayList<String> titleList = new ArrayList<>();
+        try (Connection connection = this.sqlConnect();
+             Statement statement = connection.createStatement();
+             ResultSet results = statement.executeQuery(sqlQuery)) {
+
+            while (results.next())
+                titleList.add(results.getString("Title"));
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return titleList;
     }
 
     /**
