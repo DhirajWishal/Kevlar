@@ -9,6 +9,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class Application {
@@ -350,7 +351,17 @@ public class Application {
     public void editMasterPassword() throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         ArrayList<String> titles = userAccount.getDatabaseManager().queryTitles();
 
-        // Get the new master password.
+        // Get the old master password.
+        System.out.println("Enter old master password.");
+        String masterPassword = Hasher.getSHA256(PasswordIO.getInput());
+
+        // Check if the passwords match.
+        if (!masterPassword.equals(userAccount.getMasterPassword())) {
+            System.out.println("The master passwords do not match!");
+            return;
+        }
+
+        // Get the new password.
         System.out.println("Enter new master password.");
         String newMasterPassword = Hasher.getSHA256(PasswordIO.getInput());
 
