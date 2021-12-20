@@ -390,6 +390,7 @@ public class Application {
      * Final function to clean up the application upon exit.
      */
     public void cleanup() {
+        userAccount = null;
         DatabaseManager.deleteData();
     }
 }

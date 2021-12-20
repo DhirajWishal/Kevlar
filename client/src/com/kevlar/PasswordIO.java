@@ -1,5 +1,8 @@
 package com.kevlar;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -60,25 +63,15 @@ public class PasswordIO {
     }
 
     /**
-     * Set output data to a file and delete it afterwards.
+     * Set output data to the user's clipboard.
      *
      * @param message The message to be sent.
-     * @throws IOException This function can throw an IO exception.
      */
-    public static void setOutput(String message) throws IOException {
-        String filename = generateFileName();
-        FileOutputStream file = new FileOutputStream(filename);
-        file.write(message.getBytes(StandardCharsets.UTF_8));
-        file.close();
-
-        System.out.println("The file is located at: " + System.getProperty("user.dir") + "\\" + filename);
-        System.out.print("Please hit enter after closing the text file.");
-
-        Scanner scanner = new Scanner(System.in);
-        scanner.nextLine();
-
-        File fileToDelete = new File(filename);
-        fileToDelete.delete();
+    public static void setOutput(String message) {
+        StringSelection stringSelection = new StringSelection(message);
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, stringSelection);
+        System.out.println("Password is copied to clipboard.");
     }
 
     /**
