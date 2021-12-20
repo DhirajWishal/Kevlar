@@ -80,7 +80,7 @@ public class PasswordIO {
      * @param message The message to set.
      * @throws IOException This function can throw an IO exception.
      */
-    public static void setOutputIgnore(String message) throws IOException {
+    public static void setOutputIgnoreFile(String message) throws IOException {
         String filename = generateFileName();
         FileOutputStream file = new FileOutputStream(filename);
         file.write(message.getBytes(StandardCharsets.UTF_8));
