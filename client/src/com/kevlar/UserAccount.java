@@ -16,7 +16,7 @@ public class UserAccount {
     private final String masterPassword;
     private String validationKey;
     private DatabaseManager databaseManager;
-    private IvParameterSpec initializationVectorSpec;
+    private final IvParameterSpec initializationVectorSpec;
 
     /**
      * Constructor.

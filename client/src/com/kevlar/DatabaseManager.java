@@ -33,12 +33,13 @@ public class DatabaseManager {
      */
     public void createTable() {
         // SQL statement for creating a new table with the name kevlarData
-        String createSQL = "CREATE TABLE IF NOT EXISTS kevlarData (\n"
-                + "	Title text PRIMARY KEY,\n"
-                + "	UserName text NOT NULL,\n"
-                + "	Description text NOT NULL,\n"
-                + "	Password text NOT NULL \n"
-                + ");";
+        String createSQL = """
+                CREATE TABLE IF NOT EXISTS kevlarData (
+                	Title text PRIMARY KEY,
+                	UserName text NOT NULL,
+                	Description text NOT NULL,
+                	Password text NOT NULL\s
+                );""";
 
         try (Connection connection = this.sqlConnect();
              Statement statement = connection.createStatement()) {
@@ -62,19 +63,18 @@ public class DatabaseManager {
         String sql = "INSERT INTO kevlarData(Title,userName,description,password) VALUES(?,?,?,?)";
         try {
             Connection connection = this.sqlConnect();
-            PreparedStatement satement = connection.prepareStatement(sql);
+            PreparedStatement statement = connection.prepareStatement(sql);
             //Adding the data in the order of how the SQL database was created
-            satement.setString(1, Title);
-            satement.setString(2, userName);
-            satement.setString(3, description);
-            satement.setString(4, password);
-            satement.executeUpdate();
+            statement.setString(1, Title);
+            statement.setString(2, userName);
+            statement.setString(3, description);
+            statement.setString(4, password);
+            statement.executeUpdate();
         } catch (SQLException e) {
             System.out.println(Title + " password already exists!!");
         }
 
         DatabaseManager inserter = new DatabaseManager();
-
     }
 
     /**
@@ -86,7 +86,6 @@ public class DatabaseManager {
              Statement statement = connection.createStatement();
              ResultSet results = statement.executeQuery(sqlQuery)) {
 
-
             while (results.next()) {
                 System.out.println(results.getString("Title") + "\t" +
                         results.getString("description"));
@@ -94,7 +93,6 @@ public class DatabaseManager {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-
     }
 
     /**
@@ -115,9 +113,6 @@ public class DatabaseManager {
             //Condition to output the specifc password
             if (results.next()) {
                 password = results.getString("password");
-
-            } else {
-                password = null;
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -142,8 +137,6 @@ public class DatabaseManager {
 
             if (results.next()) {
                 userName = results.getString("userName");
-            } else {
-                userName = null;
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -173,8 +166,7 @@ public class DatabaseManager {
         //byteHmac is given the final value of the H Mac
         byte[] byteHmac = mac.doFinal(encodedFile);
         //Encodes the bytes into the String and returns it
-        String finalHMACKey = Base64.getEncoder().encodeToString(byteHmac);
-        return finalHMACKey;
+        return Base64.getEncoder().encodeToString(byteHmac);
     }
 
     /**
@@ -186,8 +178,7 @@ public class DatabaseManager {
     public static String base64TheFile() throws IOException {
         File dataBaseFile = new File("userData.db");
         byte[] databaseFileBytes = Files.readAllBytes(Paths.get(String.valueOf(dataBaseFile)));
-        String base64File = Base64.getEncoder().encodeToString(databaseFileBytes);
-        return base64File;
+        return Base64.getEncoder().encodeToString(databaseFileBytes);
     }
 
     /**
@@ -200,7 +191,7 @@ public class DatabaseManager {
     public Boolean checkForPassword(String title, String password) {
         String sqlQuery = "SELECT password FROM kevlarData " +
                 "WHERE Title=\"" + title + "\"";
-        Boolean validity = false;
+        boolean validity = false;
         try (Connection connection = this.sqlConnect()) {
             Statement statement = connection.createStatement();
             ResultSet results = statement.executeQuery(sqlQuery);
@@ -208,8 +199,7 @@ public class DatabaseManager {
                 String databasePassword = results.getString("password");
                 //compares the Database password and the password entered by the user
                 if (databasePassword.equals(password)) {
-                    validity = true;
-                    return (validity);
+                    return true;
                 }
             }
         } catch (SQLException e) {
@@ -224,7 +214,6 @@ public class DatabaseManager {
      * @param title       The title the password belongs to
      * @param newPassword The new password replacing the old password
      */
-
     public void changePassword(String title, String newPassword) {
         String sqlQuery = "UPDATE kevlarData " +
                 "SET password=\"" + newPassword + "\"" +
@@ -256,8 +245,7 @@ public class DatabaseManager {
                 //checks if there is any similar values
                 String databaseTitle = results.getString("Title");
                 if (databaseTitle.equals(title)) {
-                    validity = true;
-                    return (validity);
+                    return true;
                 }
             }
         } catch (SQLException e) {
@@ -270,15 +258,7 @@ public class DatabaseManager {
      * Deletes the whole "userData.db" file after using it
      */
     public static void deleteData() {
-        String status = " ";
         File dataBaseFile = new File("userData.db");
-        if (dataBaseFile.delete()) {
-            status = ("Deleted the file ");
-        } else {
-            status = ("failed to delete the file ");
-        }
-
+        dataBaseFile.delete();
     }
-
-
 }

@@ -16,11 +16,11 @@ public class Hasher {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] messageDigest = md.digest(value.getBytes());
             BigInteger num = new BigInteger(1, messageDigest);
-            String hashtext = num.toString(16);
-            while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
+            String hashText = num.toString(16);
+            while (hashText.length() < 32) {
+                hashText = "0" + hashText;
             }
-            return hashtext;
+            return hashText;
         } 
         // For specifying wrong message digest algorithms
         catch (NoSuchAlgorithmException e) {
