@@ -1,4 +1,4 @@
-package com.kevlar;
+package com.kevlar.client;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -16,8 +16,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Base64;
 
-import static com.kevlar.DatabaseManager.base64TheFile;
-import static com.kevlar.DatabaseManager.getHmac;
+import static com.kevlar.client.DatabaseManager.base64TheFile;
+import static com.kevlar.client.DatabaseManager.getHmac;
 
 
 public class Connector {

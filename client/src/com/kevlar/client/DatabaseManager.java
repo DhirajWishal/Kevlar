@@ -1,4 +1,4 @@
-package com.kevlar;
+package com.kevlar.client;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
