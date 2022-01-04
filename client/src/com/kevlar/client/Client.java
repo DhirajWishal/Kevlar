@@ -7,10 +7,8 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Scanner;
 
 public class Client extends Application {
-    private final Scanner scanner = new Scanner(System.in);
     private UserAccount userAccount;
     private final Connector connector = new Connector();
 
@@ -65,7 +63,7 @@ public class Client extends Application {
             switch (getCommand()) {
                 case 1 -> viewPassword();
                 case 2 -> addPassword();
-                case 3 -> editpassword();
+                case 3 -> editPassword();
                 case 4 -> editMasterPassword();
                 case 0 -> {
                     bShouldRun = false;
@@ -92,33 +90,8 @@ public class Client extends Application {
     }
 
     /**
-     * Get a command from the user.
-     * This function will loop until the user inputs a valid integer.
-     *
-     * @return The user entered integer.
-     */
-    private int getCommand() {
-        while (true) {
-            try {
-                System.out.print("Enter command: ");
-                return Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Please enter a valid integer!");
-            }
-        }
-    }
-
-    /**
-     * Print a separator.
-     */
-    private void printSeparator() {
-        System.out.println("======================================");
-    }
-
-    /**
      * Login to the kevlar system.
      */
-
     private void login() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         String masterPassword, userName, base64un, base64mp, base64vk, validationKey;
         Integer checker;
@@ -150,7 +123,6 @@ public class Client extends Application {
             validationKey = Hasher.getSHA256(validationKey);
             userName = userAccount.getUserName();
             masterPassword = userAccount.getMasterPassword();
-
 
             base64vk = Base64.getEncoder().encodeToString(validationKey.getBytes());
             base64un = Base64.getEncoder().encodeToString(userName.getBytes());
@@ -271,7 +243,7 @@ public class Client extends Application {
     /**
      * Change currently stored password
      */
-    private void editpassword() throws NoSuchAlgorithmException, IOException, InvalidKeyException {
+    private void editPassword() throws NoSuchAlgorithmException, IOException, InvalidKeyException {
         String title, password;
         boolean bexists;
 
@@ -328,7 +300,6 @@ public class Client extends Application {
             System.out.println("The master passwords do not match!");
             return;
         }
-
 
         // Get the new password.
         System.out.println();
