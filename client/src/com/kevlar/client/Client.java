@@ -2,11 +2,7 @@ package com.kevlar.client;
 
 import com.kevlar.Application;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -19,37 +15,21 @@ public class Client extends Application {
     private final Connector connector = new Connector();
 
     /**
-     * Default constructor.
-     */
-    public Client() {
-        System.out.println("Welcome to Kevlar!");
-    }
-
-    /**
      * Run the main application loop.
      */
     @Override
-    public void run() throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException,
-            NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, IOException {
+    public void run() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         boolean bShouldRun = true;
         while (bShouldRun) {
             printLoginMenu();
             switch (getCommand()) {
-                case 1:
-                    login();
-                    break;
-
-                case 2:
+                case 1 -> login();
+                case 2 -> {
                     DatabaseManager.deleteData();
                     createAccount();
-                    break;
-
-                case 0:
-                    bShouldRun = false;
-                    break;
-
-                default:
-                    System.out.println("Please enter a valid command!");
+                }
+                case 0 -> bShouldRun = false;
+                default -> System.out.println("Please enter a valid command!");
             }
         }
 
@@ -83,30 +63,16 @@ public class Client extends Application {
             System.out.println("\n");
             printFunctionalMenu();
             switch (getCommand()) {
-                case 1:
-                    viewPassword();
-                    break;
-
-                case 2:
-                    addPassword();
-                    break;
-
-                case 3:
-                    editpassword();
-                    break;
-
-                case 4:
-                    editMasterPassword();
-                    break;
-
-                case 0:
+                case 1 -> viewPassword();
+                case 2 -> addPassword();
+                case 3 -> editpassword();
+                case 4 -> editMasterPassword();
+                case 0 -> {
                     bShouldRun = false;
                     userAccount = null;
                     DatabaseManager.deleteData();
-                    break;
-
-                default:
-                    System.out.println("Please enter a valid command!");
+                }
+                default -> System.out.println("Please enter a valid command!");
             }
         }
     }
@@ -153,8 +119,8 @@ public class Client extends Application {
      * Login to the kevlar system.
      */
 
-    private void login() throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, IOException {
-        String masterPassword, userName, base64un, base64mp, base64vk, exit = "", validationKey;
+    private void login() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+        String masterPassword, userName, base64un, base64mp, base64vk, validationKey;
         Integer checker;
         boolean bverify;
 
@@ -206,7 +172,6 @@ public class Client extends Application {
      * Create a new user account.
      */
     private void createAccount() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
-        boolean bConfirm = false;
         Integer checker;
         String userName, masterPassword, validationKey, base64un, base64mp, base64vk;
 
@@ -258,7 +223,7 @@ public class Client extends Application {
     /**
      * Index and decrypt a password.
      */
-    private void viewPassword() throws IOException {
+    private void viewPassword() {
         String title, password, username;
 
         printSeparator();
@@ -399,7 +364,7 @@ public class Client extends Application {
         base64un = Base64.getEncoder().encodeToString(userName.getBytes());
         while (true) {
             switch (checker) {
-                case 0:
+                case 0 -> {
                     System.out.println("Account does not exists do you perhaps wish to create a new Account instead?(Yes/No/Y/N)");
                     leaver = scanner.nextLine();
                     if (leaver.equalsIgnoreCase("yes") || leaver.equalsIgnoreCase("y")) {
@@ -411,16 +376,14 @@ public class Client extends Application {
                         System.out.println("\nPlease enter a Username between 5 and 30 characters: ");
                         userName = scanner.nextLine();
                     }
-
                     System.out.println("\nEnter Master Password: ");
                     masterPassword = PasswordIO.getInput();
                     masterPassword = Hasher.getSHA256(masterPassword);
-
                     base64un = Base64.getEncoder().encodeToString(userName.getBytes());
                     base64mp = Base64.getEncoder().encodeToString(masterPassword.getBytes());
                     checker = connector.checkAccountExist(base64un, base64mp);
-                    break;
-                case 1:
+                }
+                case 1 -> {
                     System.out.println("Invalid password entered do you wish to create a new Account instead?(Yes/No/Y/N)");
                     leaver = scanner.nextLine();
                     if (leaver.equalsIgnoreCase("yes") || leaver.equalsIgnoreCase("y")) {
@@ -431,12 +394,12 @@ public class Client extends Application {
                     masterPassword = Hasher.getSHA256(masterPassword);
                     base64mp = Base64.getEncoder().encodeToString(masterPassword.getBytes());
                     checker = connector.checkAccountExist(base64un, base64mp);
-                    break;
-                case 2:
+                }
+                case 2 -> {
                     userAccount = new UserAccount(userName, masterPassword);
                     return true;
-                default:
-                    checker = 0;
+                }
+                default -> checker = 0;
             }
         }
     }
